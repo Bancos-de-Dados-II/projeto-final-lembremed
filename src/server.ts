@@ -1,21 +1,24 @@
 import express from 'express';
 import cors from 'cors';
+import 'dotenv/config';
+import { connectMongo } from './config/mongo';
+import { connectRedis } from './config/redis';
 
 const app = express();
 const PORT = process.env.PORT || 3333;
 
-// Middlewares globais básicos
 app.use(cors());
 app.use(express.json());
 
-// Rota de teste para garantir que tudo está funcionando
 app.get('/', (req, res) => {
-  res.json({ 
-    status: 'sucesso',
-    message: '🚀 LembreMed API está rodando perfeitamente!' 
-  });
+  res.json({ message: '🚀 LembreMed API rodando com 3 bancos de dados!' });
 });
 
-app.listen(PORT, () => {
+// Inicializando o servidor e conectando aos bancos NoSQL
+app.listen(PORT, async () => {
   console.log(`Servidor rodando na porta ${PORT}`);
+  
+  // O Prisma se conecta sozinho na primeira query, mas o Mongo e Redis precisam ser chamados
+  await connectMongo();
+  await connectRedis();
 });
