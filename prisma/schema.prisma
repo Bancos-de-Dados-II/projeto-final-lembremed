@@ -1,0 +1,36 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Usuario {
+  id         String   @id @default(uuid())
+  nome       String
+  email      String   @unique
+  senha      String
+  
+  // Relacionamentos: Um usuário pode ser paciente de vários cuidadores e cuidador de vários pacientes
+  cuidadores Vinculo_Cuidado[] @relation("Paciente")
+  pacientes  Vinculo_Cuidado[] @relation("Cuidador")
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Vinculo_Cuidado {
+  id         String   @id @default(uuid())
+  pacienteId String
+  cuidadorId String
+  status     String   @default("PENDENTE") // Pode ser: PENDENTE, ACEITO, RECUSADO
+
+  paciente   Usuario @relation("Paciente", fields: [pacienteId], references: [id])
+  cuidador   Usuario @relation("Cuidador", fields: [cuidadorId], references: [id])
+
+  createdAt  DateTime @default(now())
+
+  // Regra de ouro: Evita que o mesmo cuidador crie dois vínculos com o mesmo paciente
+  @@unique([pacienteId, cuidadorId]) 
+}
