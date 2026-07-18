@@ -1,7 +1,8 @@
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import 'dotenv/config';
-import { usuarioRoutes } from './routes/usuario.routes'; // <-- 1. IMPORTAÇÃO AQUI NO TOPO
+import { usuarioRoutes } from './routes/usuario.routes';
+import { vinculoRoutes } from './routes/vinculo.routes';
 
 const app = express();
 
@@ -9,7 +10,8 @@ app.use(cors());
 app.use(express.json()); 
 
 // --- CONECTANDO AS ROTAS ---
-app.use('/usuarios', usuarioRoutes); // <-- 2. TODA ROTA DE USUÁRIO PASSA POR AQUI
+app.use('/usuarios', usuarioRoutes); // <-- 1. TODA ROTA DE USUÁRIO PASSA POR AQUI
+app.use('/vinculos', vinculoRoutes); // <-- 2. TODA ROTA DE VÍNCULO PASSA POR AQUI
 
 // Rota de Teste 
 app.get('/', (req: Request, res: Response) => {
