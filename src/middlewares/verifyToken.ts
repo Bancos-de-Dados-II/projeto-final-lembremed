@@ -17,14 +17,13 @@ export const verifyToken = (req: AuthRequest, res: Response, next: NextFunction)
     return;
   }
 
-  // O token vem no formato: "Bearer eyJhbGciOi..."
   const [, token] = authHeader.split(' ');
 
   try {
     // Tenta abrir o token com a chave secreta
     const decoded = jwt.verify(token, JWT_SECRET);
     req.usuario = decoded; // Salva os dados na requisição para o Controller usar
-    next(); // Libera a catraca, a requisição pode continuar!
+    next(); // Libera a catraca, a requisição pode continuar
   } catch (error) {
     res.status(401).json({ error: 'Token inválido ou expirado.' });
   }
