@@ -1,6 +1,6 @@
 import { defineConfig } from '@prisma/config';
 import 'dotenv/config';
-import process from 'process'; // A importação que resolveu o erro do TS!
+import process from 'process'; 
 
 export default defineConfig({
   datasource: {
