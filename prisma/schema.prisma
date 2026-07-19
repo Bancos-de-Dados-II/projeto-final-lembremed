@@ -7,29 +7,39 @@ datasource db {
 }
 
 model Usuario {
-  id        String   @id @default(uuid())
-  nome      String
-  email     String   @unique
-  senha     String
-  papel     String  
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id              String   @id @default(uuid())
+  nome            String
+  email           String   @unique
+  senha           String
+  papel           String  
   
-  cuidadores Vinculo_Cuidado[] @relation("Paciente")
-  pacientes  Vinculo_Cuidado[] @relation("Cuidador")
+  // Novos atributos alinhados com o documento de requisitos
+  telefone        String?
+  foto_perfil_url String?
+  latitude_atual  Float?
+  longitude_atual Float?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  cuidadores      Vinculo_Cuidado[] @relation("Paciente")
+  pacientes       Vinculo_Cuidado[] @relation("Cuidador")
 }
 
 model Vinculo_Cuidado {
-  id         String   @id @default(uuid())
-  pacienteId String
-  cuidadorId String
-  status     String   @default("PENDENTE") // Pode ser: PENDENTE, ACEITO, RECUSADO
+  id           String   @id @default(uuid())
+  pacienteId   String
+  cuidadorId   String
+  status       String   @default("PENDENTE") // Pode ser: PENDENTE, ACEITO, RECUSADO
+  
+  // Novo atributo alinhado com o documento de requisitos
+  nivel_acesso String?  @default("TOTAL") // Ex: TOTAL, LEITURA
 
-  paciente   Usuario @relation("Paciente", fields: [pacienteId], references: [id])
-  cuidador   Usuario @relation("Cuidador", fields: [cuidadorId], references: [id])
+  paciente     Usuario  @relation("Paciente", fields: [pacienteId], references: [id])
+  cuidador     Usuario  @relation("Cuidador", fields: [cuidadorId], references: [id])
 
-  createdAt  DateTime @default(now())
+  createdAt    DateTime @default(now())
 
-  // Regra de ouro: Evita que o mesmo cuidador crie dois vínculos com o mesmo paciente
+  //Evita que o mesmo cuidador crie dois vínculos com o mesmo paciente
   @@unique([pacienteId, cuidadorId]) 
 }

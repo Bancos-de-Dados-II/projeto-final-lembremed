@@ -33,6 +33,10 @@ export class UsuarioService {
         email: dados.email,
         senha: senhaCriptografada,
         papel: dados.papel,
+        telefone: dados.telefone,
+        foto_perfil_url: dados.foto_perfil_url,
+        latitude_atual: dados.latitude_atual,
+        longitude_atual: dados.longitude_atual,
       },
     });
 
@@ -82,6 +86,10 @@ export class UsuarioService {
         email: true,
         papel: true,
         createdAt: true,
+        telefone: true,            
+        foto_perfil_url: true,     
+        latitude_atual: true,      
+        longitude_atual: true
       }
     });
     
@@ -107,7 +115,16 @@ export class UsuarioService {
     const usuarioAtualizado = await prisma.usuario.update({
       where: { id },
       data: dados,
-      select: { id: true, nome: true, email: true, papel: true }
+      select: { 
+        id: true, 
+        nome: true, 
+        email: true, 
+        papel: true,
+        telefone: true,
+        foto_perfil_url: true,
+        latitude_atual: true,
+        longitude_atual: true 
+        }
     });
 
     return usuarioAtualizado;
