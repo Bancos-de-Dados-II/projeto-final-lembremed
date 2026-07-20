@@ -1,17 +1,28 @@
 import { createClient } from 'redis';
-import 'dotenv/config';
 
-export const redisClient = createClient({
+// Cria a instância do cliente usando a URL do .env
+const redisClient = createClient({
   url: process.env.REDIS_URL
 });
 
-redisClient.on('error', (err) => console.error('🔴 Erro no Redis:', err));
+// Fica escutando erros para avisar no console se a conexão cair
+redisClient.on('error', (err) => {
+  console.error("❌ Erro no Redis Cliente:", err);
+});
 
-export const connectRedis = async () => {
+// Fica escutando o evento de sucesso
+redisClient.on('connect', () => {
+  console.log("✅ Conectado ao Redis com sucesso!");
+});
+
+// Função para iniciar a conexão de fato
+const conectarRedis = async () => {
   try {
     await redisClient.connect();
-    console.log('🟢 Conectado ao Redis com sucesso!');
   } catch (error) {
-    console.error('🔴 Erro ao conectar no Redis:', error);
+    console.error("❌ Falha ao iniciar a conexão com o Redis:", error);
   }
 };
+
+//redisClient' para fazer o Snooze Adaptativo
+export { redisClient, conectarRedis };

@@ -4,10 +4,18 @@ import 'dotenv/config';
 import { usuarioRoutes } from './routes/usuario.routes';
 import { vinculoRoutes } from './routes/vinculo.routes';
 
+// Importando as conexões da infraestrutura poliglota
+import conectarMongoDB from './config/mongo';
+import { conectarRedis } from './config/redis';
+
 const app = express();
 
 app.use(cors());
 app.use(express.json()); 
+
+// --- CONECTANDO AOS BANCOS NÃO-RELACIONAIS ---
+conectarMongoDB();
+conectarRedis();
 
 // --- CONECTANDO AS ROTAS ---
 app.use('/usuarios', usuarioRoutes); // <-- 1. TODA ROTA DE USUÁRIO PASSA POR AQUI
