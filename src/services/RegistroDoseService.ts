@@ -1,5 +1,9 @@
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
+import {
+  agendarSnoozeDoRegistro,
+  cancelarSnoozeDoRegistro,
+} from "../config/redisSnoozeListener";
 
 const adapter = new PrismaPg({
   connectionString: process.env.DATABASE_URL as string,
@@ -25,20 +29,30 @@ export class RegistroDoseService {
 
       if (!deveGerarHoje) continue;
 
-      await prisma.registro_Dose.upsert({
+      const jaExiste = await prisma.registro_Dose.findUnique({
         where: {
           medicamentoId_data: {
             medicamentoId: medicamento.id,
             data: dataAlvo,
           },
         },
-        update: {},
-        create: {
+      });
+
+      if (jaExiste) continue;
+
+      const novoRegistro = await prisma.registro_Dose.create({
+        data: {
           medicamentoId: medicamento.id,
           data: dataAlvo,
           status: "PENDENTE",
         },
       });
+
+      await agendarSnoozeDoRegistro(
+        novoRegistro.id,
+        dataAlvo,
+        medicamento.horario
+      );
     }
 
     return prisma.registro_Dose.findMany({
@@ -59,6 +73,8 @@ export class RegistroDoseService {
   }
 
   async confirmarDose(id: string) {
+    await cancelarSnoozeDoRegistro(id);
+
     return prisma.registro_Dose.update({
       where: { id },
       data: {

@@ -9,6 +9,7 @@ import { alertaEmergenciaRoutes } from './routes/alertaEmergencia.routes';
 // Importando as conexões da infraestrutura poliglota
 import conectarMongoDB from './config/mongo';
 import { conectarRedis } from './config/redis';
+import { iniciarListenerDeSnooze } from './config/redisSnoozeListener';
 
 const app = express();
 
@@ -17,7 +18,7 @@ app.use(express.json());
 
 // --- CONECTANDO AOS BANCOS NÃO-RELACIONAIS ---
 conectarMongoDB();
-conectarRedis();
+conectarRedis().then(() => iniciarListenerDeSnooze());
 
 // --- CONECTANDO AS ROTAS ---
 app.use('/usuarios', usuarioRoutes);
