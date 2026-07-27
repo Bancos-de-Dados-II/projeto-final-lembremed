@@ -6,7 +6,15 @@ import { MedicamentoService } from '../services/MedicamentoService';
 export class MedicamentoController {
   static async criar(req: Request, res: Response): Promise<void> {
     try {
-      const dadosValidados = criarMedicamentoSchema.parse(req.body);
+      const foto_url = req.file
+        ? `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`
+        : undefined;
+
+      const dadosValidados = criarMedicamentoSchema.parse({
+        ...req.body,
+        foto_url,
+      });
+
       const novoMedicamento = await MedicamentoService.criar(dadosValidados);
 
       res.status(201).json({

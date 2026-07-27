@@ -1,5 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
+import path from 'path';
 import 'dotenv/config';
 import { usuarioRoutes } from './routes/usuario.routes';
 import { vinculoRoutes } from './routes/vinculo.routes';
@@ -28,6 +29,7 @@ app.use('/pontos-saude-mapa', pontoSaudeMapaRoutes);
 app.use('/alertas-emergencia', alertaEmergenciaRoutes);
 app.use('/medicamentos', medicamentoRoutes);
 app.use('/receitas-medicas', receitaMedicaRoutes);
+app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 app.use(registroDoseRoutes);
 
 // Rota de Teste
