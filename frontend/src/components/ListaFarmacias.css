@@ -1,0 +1,60 @@
+.lista-farmacias{
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+    margin-bottom:20px;
+}
+
+.lista-farmacias__vazia{
+    background:#fff;
+    border-radius:18px;
+    padding:18px;
+    text-align:center;
+    color:#666;
+}
+
+.farmacia-card{
+    width:100%;
+    background:#fff;
+    border:none;
+    border-radius:18px;
+    padding:18px;
+    cursor:pointer;
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    box-shadow:0 4px 14px rgba(0,0,0,.08);
+
+    transition:.2s;
+}
+
+.farmacia-card:hover{
+    transform:translateY(-2px);
+}
+
+.farmacia-card--ativa{
+    border:2px solid #5b4fe0;
+    background:#f5f3ff;
+}
+
+.farmacia-card__conteudo h3{
+    margin:0;
+    color:#241d3d;
+    font-size:1.1rem;
+}
+
+.farmacia-card__conteudo p{
+    margin:6px 0;
+    color:#666;
+}
+
+.farmacia-card__conteudo span{
+    color:#888;
+    font-size:.9rem;
+}
+
+.farmacia-card__icone{
+    font-size:28px;
+}

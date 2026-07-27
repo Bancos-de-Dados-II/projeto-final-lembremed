@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { MedicamentoCard } from './MedicamentoCard';
+import { MapaFarmacias } from './MapaFarmacias';
 import { buscarRegistrosDoDia, confirmarDose } from '../services/api';
 import type { RegistroDose } from '../types/registroDose';
 import './MeusRemedios.css';
@@ -7,13 +8,12 @@ import './MeusRemedios.css';
 // Enquanto a tela de login do time não estiver pronta, o pacienteId pode ser
 // colado manualmente no localStorage do navegador (chave "lembremed_paciente_id"),
 // copiando o "id" retornado pelo POST /usuarios cadastrado como PACIENTE.
-// Mesmo padrão usado pelo token em MapaFarmacias/api.ts.
 function obterPacienteId(): string | null {
   return localStorage.getItem('lembremed_paciente_id');
 }
 
 function formatarDataParaApi(data: Date): string {
-  return data.toISOString().slice(0, 10); // formato YYYY-MM-DD
+  return data.toISOString().slice(0, 10);
 }
 
 function formatarDataPorExtenso(data: Date): string {
@@ -56,6 +56,7 @@ export function MeusRemedios() {
 
     try {
       const registroAtualizado = await confirmarDose(registroId);
+
       setRegistros((atual) =>
         atual.map((registro) =>
           registro.id === registroId ? registroAtualizado : registro
@@ -73,6 +74,7 @@ export function MeusRemedios() {
       <header className="meus-remedios__cabecalho">
         <div>
           <h1 className="meus-remedios__titulo">Meus Remédios</h1>
+
           <p className="meus-remedios__data">
             {formatarDataPorExtenso(new Date())}
           </p>
@@ -95,11 +97,13 @@ export function MeusRemedios() {
 
       <section aria-labelledby="horarios-titulo">
         <h2 id="horarios-titulo" className="meus-remedios__subtitulo">
-          <span aria-hidden="true">🕐</span> Horários de Hoje
+          🕐 Horários de Hoje
         </h2>
 
         {carregandoLista ? (
-          <p className="meus-remedios__carregando">Carregando remédios...</p>
+          <p className="meus-remedios__carregando">
+            Carregando remédios...
+          </p>
         ) : (
           <div className="meus-remedios__grade">
             {registros.map((registro) => (
@@ -112,6 +116,16 @@ export function MeusRemedios() {
             ))}
           </div>
         )}
+      </section>
+
+      <section className="meus-remedios__farmacias">
+        <h2 className="meus-remedios__subtitulo">
+          📍 Farmácias Próximas
+        </h2>
+
+        <div className="meus-remedios__mapa">
+          <MapaFarmacias />
+        </div>
       </section>
     </main>
   );
