@@ -3,6 +3,7 @@ import cors from 'cors';
 import 'dotenv/config';
 import { usuarioRoutes } from './routes/usuario.routes';
 import { vinculoRoutes } from './routes/vinculo.routes';
+import registroDoseRoutes from "./routes/registroDose.routes";
 
 // Importando as conexões da infraestrutura poliglota
 import conectarMongoDB from './config/mongo';
@@ -10,6 +11,7 @@ import { conectarRedis } from './config/redis';
 
 const app = express();
 
+app.use(registroDoseRoutes);
 app.use(cors());
 app.use(express.json()); 
 
