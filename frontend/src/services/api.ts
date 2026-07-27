@@ -1,5 +1,5 @@
 import type { PontoSaudeMapa } from '../types/pontoSaudeMapa';
-import type { RegistroDose } from '../types/registroDose';
+import type { Medicamento, RegistroDose } from '../types/registroDose';
 
 // URL base da API do backend LembreMed (configurada em .env como VITE_API_URL)
 const API_URL = import.meta.env.VITE_API_URL as string;
@@ -70,5 +70,23 @@ export async function confirmarDose(registroId: string): Promise<RegistroDose> {
     const corpoErro = await resposta.json().catch(() => null);
     throw new Error(corpoErro?.erro ?? 'Não foi possível confirmar a dose.');
   }
+  return resposta.json();
+}
+
+export async function buscarMedicamentosPorPaciente(
+  pacienteId: string
+): Promise<Medicamento[]> {
+  const resposta = await fetch(`${API_URL}/medicamentos?pacienteId=${pacienteId}`, {
+    headers: {
+      'Content-Type': 'application/json',
+      ...obterHeadersAutenticacao(),
+    },
+  });
+
+  if (!resposta.ok) {
+    const corpoErro = await resposta.json().catch(() => null);
+    throw new Error(corpoErro?.erro ?? 'Não foi possível carregar os medicamentos.');
+  }
+
   return resposta.json();
 }
