@@ -22,9 +22,11 @@ model Usuario {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   
-  cuidadores      Vinculo_Cuidado[] @relation("Paciente")
-  pacientes       Vinculo_Cuidado[] @relation("Cuidador")
-  medicamentos    Medicamento[]     @relation("MedicamentosPaciente")
+  cuidadores           Vinculo_Cuidado[] @relation("Paciente")
+  pacientes            Vinculo_Cuidado[] @relation("Cuidador")
+  medicamentos         Medicamento[]     @relation("MedicamentosPaciente")
+  receitasComoPaciente Receita_Medica[]  @relation("ReceitasPaciente")
+  receitasComoMedico   Receita_Medica[]  @relation("ReceitasEmitidas")
 }
 
 model Vinculo_Cuidado {
@@ -77,4 +79,21 @@ model Registro_Dose {
   updatedAt          DateTime @updatedAt
 
   @@unique([medicamentoId, data])
+}
+
+model Receita_Medica {
+  id           String   @id @default(uuid())
+
+  pacienteId   String
+  paciente     Usuario  @relation("ReceitasPaciente", fields: [pacienteId], references: [id])
+
+  medicoId     String
+  medico       Usuario  @relation("ReceitasEmitidas", fields: [medicoId], references: [id])
+
+  arquivo_url  String
+  observacoes  String?
+  dataEmissao  DateTime @default(now())
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
