@@ -1,0 +1,88 @@
+.meus-remedios {
+  min-height: 100vh;
+  background: #f7f6fc;
+  padding: 1.5rem 1.25rem 3rem;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+.meus-remedios__cabecalho {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+}
+
+.meus-remedios__titulo {
+  font-size: 2.1rem;
+  font-weight: 800;
+  color: #241d3d;
+  margin: 0;
+}
+
+.meus-remedios__data {
+  font-size: 1.05rem;
+  color: #6b628a;
+  margin: 0.25rem 0 0;
+  text-transform: capitalize;
+}
+
+.meus-remedios__botao-emergencia {
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  border: none;
+  background: #e5484d;
+  color: #ffffff;
+  font-size: 1.6rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.meus-remedios__botao-emergencia:focus-visible {
+  outline: 3px solid #241d3d;
+  outline-offset: 2px;
+}
+
+.meus-remedios__erro {
+  background: #fdeceb;
+  color: #d9433c;
+  font-weight: 600;
+  padding: 0.9rem 1.1rem;
+  border-radius: 12px;
+  margin-bottom: 1.25rem;
+}
+
+.meus-remedios__carregando {
+  font-size: 1.1rem;
+  color: #6b628a;
+}
+
+.meus-remedios__subtitulo {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #241d3d;
+  margin: 0 0 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.meus-remedios__grade {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.1rem;
+}
+
+@media (min-width: 700px) {
+  .meus-remedios__grade {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1000px) {
+  .meus-remedios__grade {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

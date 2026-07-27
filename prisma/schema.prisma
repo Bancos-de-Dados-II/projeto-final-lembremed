@@ -24,6 +24,7 @@ model Usuario {
   
   cuidadores      Vinculo_Cuidado[] @relation("Paciente")
   pacientes       Vinculo_Cuidado[] @relation("Cuidador")
+  medicamentos    Medicamento[]     @relation("MedicamentosPaciente")
 }
 
 model Vinculo_Cuidado {
@@ -42,4 +43,38 @@ model Vinculo_Cuidado {
 
   //Evita que o mesmo cuidador crie dois vínculos com o mesmo paciente
   @@unique([pacienteId, cuidadorId]) 
+}
+
+model Medicamento {
+  id           String   @id @default(uuid())
+  pacienteId   String
+  paciente     Usuario  @relation("MedicamentosPaciente", fields: [pacienteId], references: [id])
+
+  nome         String
+  dosagem      String?
+  foto_url     String?
+  horario      String   // ex: "08:00"
+  frequencia   String   @default("DIARIA") // "DIARIA" ou "SEMANAL"
+  dias_semana  String?  // ex: "SEGUNDA" ou "SEGUNDA,QUARTA" (só se frequencia = SEMANAL)
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  registros    Registro_Dose[]
+}
+
+model Registro_Dose {
+  id                 String       @id @default(uuid())
+  medicamentoId      String
+  medicamento        Medicamento  @relation(fields: [medicamentoId], references: [id])
+
+  data               DateTime     // data do dia em questão (sem hora, ex: 2026-04-13T00:00:00)
+  horario_confirmado DateTime?
+
+  status             String       @default("PENDENTE") // PENDENTE, TOMADO, ATRASADO
+
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@unique([medicamentoId, data])
 }
