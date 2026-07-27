@@ -2,4 +2,5 @@ node_modules
 dist
 .env
 /src/generated/prisma
-docker-compose.ymluploads/
+docker-compose.yml
+uploads/

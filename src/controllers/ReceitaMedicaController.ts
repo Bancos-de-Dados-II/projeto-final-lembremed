@@ -6,7 +6,15 @@ import { ReceitaMedicaService } from '../services/ReceitaMedicaService';
 export class ReceitaMedicaController {
   static async criar(req: Request, res: Response): Promise<void> {
     try {
-      const dadosValidados = criarReceitaMedicaSchema.parse(req.body);
+      const arquivo_url = req.file
+        ? `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`
+        : undefined;
+
+      const dadosValidados = criarReceitaMedicaSchema.parse({
+        ...req.body,
+        arquivo_url,
+      });
+
       const novaReceita = await ReceitaMedicaService.criar(dadosValidados);
 
       res.status(201).json({
