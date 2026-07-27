@@ -6,6 +6,7 @@ import { vinculoRoutes } from './routes/vinculo.routes';
 import registroDoseRoutes from "./routes/registroDose.routes";
 import { pontoSaudeMapaRoutes } from './routes/pontoSaudeMapa.routes';
 import { alertaEmergenciaRoutes } from './routes/alertaEmergencia.routes';
+import { medicamentoRoutes } from './routes/medicamento.routes';
 // Importando as conexões da infraestrutura poliglota
 import conectarMongoDB from './config/mongo';
 import { conectarRedis } from './config/redis';
@@ -25,6 +26,7 @@ app.use('/usuarios', usuarioRoutes);
 app.use('/vinculos', vinculoRoutes);
 app.use('/pontos-saude-mapa', pontoSaudeMapaRoutes);
 app.use('/alertas-emergencia', alertaEmergenciaRoutes);
+app.use('/medicamentos', medicamentoRoutes);
 app.use(registroDoseRoutes);
 
 // Rota de Teste
