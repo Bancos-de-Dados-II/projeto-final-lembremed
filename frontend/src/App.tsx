@@ -6,7 +6,9 @@ function App() {
   return (
     <div className="app-shell">
       <MeusRemedios />
-      <MapaFarmacias />
+      <div className="secao-mapa">
+        <MapaFarmacias />
+      </div>
     </div>
   );
 }
