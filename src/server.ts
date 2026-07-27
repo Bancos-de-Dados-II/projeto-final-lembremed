@@ -11,7 +11,7 @@ import { medicamentoRoutes } from './routes/medicamento.routes';
 import conectarMongoDB from './config/mongo';
 import { conectarRedis } from './config/redis';
 import { iniciarListenerDeSnooze } from './config/redisSnoozeListener';
-
+import { receitaMedicaRoutes } from './routes/receitaMedica.routes';
 const app = express();
 
 app.use(cors());
@@ -27,6 +27,7 @@ app.use('/vinculos', vinculoRoutes);
 app.use('/pontos-saude-mapa', pontoSaudeMapaRoutes);
 app.use('/alertas-emergencia', alertaEmergenciaRoutes);
 app.use('/medicamentos', medicamentoRoutes);
+app.use('/receitas-medicas', receitaMedicaRoutes);
 app.use(registroDoseRoutes);
 
 // Rota de Teste
