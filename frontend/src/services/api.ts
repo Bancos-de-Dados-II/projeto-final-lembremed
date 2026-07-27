@@ -1,4 +1,5 @@
 import type { PontoSaudeMapa } from '../types/pontoSaudeMapa';
+import type { RegistroDose } from '../types/registroDose';
 
 // URL base da API do backend LembreMed (configurada em .env como VITE_API_URL)
 const API_URL = import.meta.env.VITE_API_URL as string;
@@ -27,5 +28,47 @@ export async function buscarPontosSaudeMapa(): Promise<PontoSaudeMapa[]> {
     );
   }
 
+  return resposta.json();
+}
+
+export async function buscarRegistrosDoDia(
+  pacienteId: string,
+  data: string
+): Promise<RegistroDose[]> {
+  const resposta = await fetch(
+    `${API_URL}/registros-dose?pacienteId=${pacienteId}&data=${data}`,
+    {
+      headers: {
+        'Content-Type': 'application/json',
+        ...obterHeadersAutenticacao(),
+      },
+    }
+  );
+
+  if (!resposta.ok) {
+    const corpoErro = await resposta.json().catch(() => null);
+    throw new Error(
+      corpoErro?.erro ?? 'Não foi possível carregar os remédios de hoje.'
+    );
+  }
+  return resposta.json();
+}
+
+export async function confirmarDose(registroId: string): Promise<RegistroDose> {
+  const resposta = await fetch(
+    `${API_URL}/registros-dose/${registroId}/confirmar`,
+    {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        ...obterHeadersAutenticacao(),
+      },
+    }
+  );
+
+  if (!resposta.ok) {
+    const corpoErro = await resposta.json().catch(() => null);
+    throw new Error(corpoErro?.erro ?? 'Não foi possível confirmar a dose.');
+  }
   return resposta.json();
 }
