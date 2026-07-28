@@ -80,13 +80,6 @@ export function MeusRemedios() {
           </p>
         </div>
 
-        <button
-          type="button"
-          className="meus-remedios__botao-emergencia"
-          aria-label="Pedir ajuda de emergência"
-        >
-          !
-        </button>
       </header>
 
       {erro && (
