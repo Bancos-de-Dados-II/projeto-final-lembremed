@@ -170,3 +170,104 @@ export async function criarAlertaEmergencia(
 
   await resposta.json().catch(() => null);
 }
+
+
+export interface PacienteVinculado {
+  id: string;
+  nome: string;
+  email: string;
+  telefone: string | null;
+  quantidadeMedicamentos: number;
+}
+
+export async function buscarMeusPacientes(): Promise<PacienteVinculado[]> {
+  const resposta = await fetch(`${API_URL}/vinculos/meus-pacientes`, {
+    headers: {
+      'Content-Type': 'application/json',
+      ...obterHeadersAutenticacao(),
+    },
+  });
+
+  if (!resposta.ok) {
+    const corpoErro = await resposta.json().catch(() => null);
+    throw new Error(corpoErro?.erro ?? 'Não foi possível carregar seus pacientes.');
+  }
+
+  return resposta.json();
+}
+
+export async function vincularPaciente(emailPaciente: string): Promise<void> {
+  const resposta = await fetch(`${API_URL}/vinculos`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...obterHeadersAutenticacao(),
+    },
+    body: JSON.stringify({ emailPaciente }),
+  });
+
+  if (!resposta.ok) {
+    const corpoErro = await resposta.json().catch(() => null);
+    throw new Error(corpoErro?.erro ?? 'Não foi possível vincular o paciente.');
+  }
+
+  await resposta.json().catch(() => null);
+}
+
+export interface NovoMedicamentoDTO {
+  pacienteId: string;
+  nome: string;
+  dosagem?: string;
+  horario: string;
+  frequencia?: 'DIARIA' | 'SEMANAL';
+  foto?: File | null;
+}
+
+// Usa FormData (não JSON) porque a rota aceita upload de foto (multipart/form-data)
+export async function criarMedicamento(dados: NovoMedicamentoDTO): Promise<Medicamento> {
+  const formData = new FormData();
+  formData.append('pacienteId', dados.pacienteId);
+  formData.append('nome', dados.nome);
+  formData.append('horario', dados.horario);
+  if (dados.dosagem) formData.append('dosagem', dados.dosagem);
+  if (dados.frequencia) formData.append('frequencia', dados.frequencia);
+  if (dados.foto) formData.append('foto', dados.foto);
+
+  const resposta = await fetch(`${API_URL}/medicamentos`, {
+    method: 'POST',
+    headers: {
+      // Não define Content-Type manualmente: o navegador precisa gerar
+      // o boundary do multipart/form-data sozinho.
+      ...obterHeadersAutenticacao(),
+    },
+    body: formData,
+  });
+
+  const corpo = await resposta.json();
+
+  if (!resposta.ok) {
+    const mensagem = corpo.erros_de_validacao
+      ? corpo.erros_de_validacao.map((e: { message: string }) => e.message).join(', ')
+      : corpo.erro ?? 'Não foi possível cadastrar o medicamento.';
+    throw new Error(mensagem);
+  }
+
+  return corpo.medicamento as Medicamento;
+}
+
+export async function deletarMedicamento(id: string): Promise<void> {
+  const resposta = await fetch(`${API_URL}/medicamentos/${id}`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      ...obterHeadersAutenticacao(),
+    },
+  });
+
+  if (!resposta.ok) {
+    const corpoErro = await resposta.json().catch(() => null);
+    throw new Error(corpoErro?.erro ?? 'Não foi possível remover o medicamento.');
+  }
+
+  await resposta.json().catch(() => null);
+}

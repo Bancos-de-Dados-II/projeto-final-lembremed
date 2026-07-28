@@ -1,0 +1,104 @@
+.painel-cuidador {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+
+.painel-cuidador__cabecalho {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 32px;
+}
+
+.painel-cuidador__titulo {
+  font-size: 2rem;
+  margin: 0;
+}
+
+.painel-cuidador__subtitulo {
+  color: #666;
+  margin-top: 4px;
+}
+
+.painel-cuidador__botao-sair {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: #f0eef5;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.painel-cuidador__secao-titulo {
+  font-size: 1.3rem;
+  margin-bottom: 16px;
+}
+
+.painel-cuidador__mensagem {
+  color: #888;
+}
+
+.painel-cuidador__mensagem--erro {
+  color: #b00020;
+}
+
+.painel-cuidador__grade {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.cartao-paciente {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.cartao-paciente__topo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.cartao-paciente__nome {
+  font-size: 1.15rem;
+  margin: 0;
+}
+
+.cartao-paciente__seta {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: #f0e6fc;
+  color: #7c3aed;
+  cursor: pointer;
+}
+
+.cartao-paciente__linha {
+  color: #555;
+  font-size: 0.9rem;
+  margin: 4px 0;
+}
+
+.cartao-paciente__rodape {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid #eee;
+  font-size: 0.9rem;
+}
+
+.cartao-paciente__gerenciar {
+  background: none;
+  border: none;
+  color: #7c3aed;
+  font-weight: 600;
+  cursor: pointer;
+}
