@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Login } from './components/Login';
 import { Cadastro } from './components/Cadastro';
 import { MeusRemedios } from './components/MeusRemedios';
-import { Dashboard } from './components/Dashboard';
+import { PainelCuidador } from './components/PainelCuidador';
 import type { UsuarioLogado } from './services/api';
 import './App.css';
 
@@ -14,14 +14,21 @@ function recuperarUsuarioSalvo(): UsuarioLogado | null {
 function App() {
   const [usuario, setUsuario] = useState<UsuarioLogado | null>(recuperarUsuarioSalvo());
   const [tela, setTela] = useState<'login' | 'cadastro'>('login');
-
-  // NOVO: Estado para saber qual card ele clicou
   const [papelCadastro, setPapelCadastro] = useState<'PACIENTE' | 'CUIDADOR'>('PACIENTE');
 
   function aoAutenticar(usuarioLogado: UsuarioLogado, token: string) {
     localStorage.setItem('lembremed_usuario', JSON.stringify(usuarioLogado));
     localStorage.setItem('lembremed_token', token);
-    localStorage.setItem('lembremed_paciente_id', usuarioLogado.id);
+
+    // Só salva pacienteId quando quem logou É o paciente.
+    // Cuidador não tem medicamentos próprios — ele escolhe o paciente
+    // dentro do Painel do Cuidador.
+    if (usuarioLogado.papel === 'PACIENTE') {
+      localStorage.setItem('lembremed_paciente_id', usuarioLogado.id);
+    } else {
+      localStorage.removeItem('lembremed_paciente_id');
+    }
+
     setUsuario(usuarioLogado);
   }
 
@@ -38,13 +45,13 @@ function App() {
       <Login
         aoLogar={aoAutenticar}
         aoIrParaCadastro={(papelClicado) => {
-          setPapelCadastro(papelClicado); // Salva qual card foi clicado
-          setTela('cadastro'); // Muda para a tela de cadastro
+          setPapelCadastro(papelClicado);
+          setTela('cadastro');
         }}
       />
     ) : (
       <Cadastro
-        papelInicial={papelCadastro} // Passa a informação para o formulário de cadastro
+        papelInicial={papelCadastro}
         aoCadastrar={aoAutenticar}
         aoVoltarParaLogin={() => setTela('login')}
       />
@@ -54,7 +61,7 @@ function App() {
   return (
     <div className="app-shell">
       {usuario.papel === 'CUIDADOR' ? (
-        <Dashboard />
+        <PainelCuidador aoSair={sair} />
       ) : (
         <MeusRemedios usuario={usuario} aoSair={sair} />
       )}

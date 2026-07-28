@@ -1,0 +1,110 @@
+.detalhe-paciente {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+
+.detalhe-paciente__voltar {
+  background: none;
+  border: none;
+  color: #7c3aed;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 20px;
+  font-size: 0.95rem;
+}
+
+.detalhe-paciente__cartao-info {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  margin-bottom: 24px;
+}
+
+.detalhe-paciente__nome {
+  margin: 0 0 16px;
+  font-size: 1.5rem;
+}
+
+.detalhe-paciente__info-grade {
+  display: flex;
+  gap: 40px;
+}
+
+.detalhe-paciente__label {
+  font-size: 0.8rem;
+  color: #888;
+}
+
+.detalhe-paciente__cabecalho-medicamentos {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.detalhe-paciente__botao-adicionar {
+  background: #7c3aed;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.detalhe-paciente__erro {
+  color: #b00020;
+}
+
+.detalhe-paciente__grade-medicamentos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+.cartao-medicamento {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  padding-bottom: 16px;
+}
+
+.cartao-medicamento__foto {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+}
+
+.cartao-medicamento__foto--vazia {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f3f0fa;
+  font-size: 2.5rem;
+}
+
+.cartao-medicamento__nome {
+  margin: 12px 16px 4px;
+}
+
+.cartao-medicamento__linha {
+  margin: 2px 16px;
+  color: #555;
+  font-size: 0.9rem;
+}
+
+.cartao-medicamento__remover {
+  display: block;
+  width: calc(100% - 32px);
+  margin: 12px 16px 0;
+  background: #fdeaea;
+  color: #c62828;
+  border: none;
+  border-radius: 8px;
+  padding: 10px;
+  font-weight: 600;
+  cursor: pointer;
+}
