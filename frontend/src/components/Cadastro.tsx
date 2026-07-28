@@ -6,13 +6,15 @@ import './Login.css';
 interface CadastroProps {
   aoCadastrar: (usuario: UsuarioLogado, token: string) => void;
   aoVoltarParaLogin: () => void;
+  papelInicial: 'PACIENTE' | 'CUIDADOR'; 
 }
 
-export function Cadastro({ aoCadastrar, aoVoltarParaLogin }: CadastroProps) {
+// 1. Recebemos o papelInicial aqui nas propriedades
+export function Cadastro({ aoCadastrar, aoVoltarParaLogin, papelInicial }: CadastroProps) {
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
-  const [papel, setPapel] = useState<'PACIENTE' | 'CUIDADOR'>('PACIENTE');
+  // 2. O useState de 'papel' foi removido, pois a escolha já foi feita na tela anterior
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
 
@@ -22,7 +24,9 @@ export function Cadastro({ aoCadastrar, aoVoltarParaLogin }: CadastroProps) {
     setCarregando(true);
 
     try {
-      await cadastrar({ nome, email, senha, papel });
+      // 3. Passamos o papelInicial direto para a função de cadastro da API
+      await cadastrar({ nome, email, senha, papel: papelInicial });
+      
       // após cadastrar, já loga automaticamente pra não precisar digitar tudo de novo
       const resultado = await login(email, senha);
       aoCadastrar(resultado.usuario, resultado.token);
@@ -37,7 +41,11 @@ export function Cadastro({ aoCadastrar, aoVoltarParaLogin }: CadastroProps) {
     <main className="login">
       <div className="login__card">
         <h1 className="login__titulo">LembreMed</h1>
-        <p className="login__subtitulo">Criar conta</p>
+        
+        {/* 4. Subtítulo dinâmico para dar feedback visual ao usuário */}
+        <p className="login__subtitulo">
+          Criar conta de {papelInicial === 'PACIENTE' ? 'Paciente' : 'Cuidador'}
+        </p>
 
         <form className="login__form" onSubmit={aoEnviar}>
           <label className="login__campo">
@@ -71,32 +79,7 @@ export function Cadastro({ aoCadastrar, aoVoltarParaLogin }: CadastroProps) {
             />
           </label>
 
-          <div className="login__campo">
-            Eu sou:
-            <div className="login__papel-opcoes">
-              <label className="login__papel-opcao">
-                <input
-                  type="radio"
-                  name="papel"
-                  value="PACIENTE"
-                  checked={papel === 'PACIENTE'}
-                  onChange={() => setPapel('PACIENTE')}
-                />
-                Paciente
-              </label>
-
-              <label className="login__papel-opcao">
-                <input
-                  type="radio"
-                  name="papel"
-                  value="CUIDADOR"
-                  checked={papel === 'CUIDADOR'}
-                  onChange={() => setPapel('CUIDADOR')}
-                />
-                Cuidador
-              </label>
-            </div>
-          </div>
+          {/* O bloco "Eu sou: Paciente / Cuidador" foi completamente removido daqui! */}
 
           {erro && (
             <p className="login__erro" role="alert">

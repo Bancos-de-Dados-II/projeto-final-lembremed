@@ -14,6 +14,9 @@ function recuperarUsuarioSalvo(): UsuarioLogado | null {
 function App() {
   const [usuario, setUsuario] = useState<UsuarioLogado | null>(recuperarUsuarioSalvo());
   const [tela, setTela] = useState<'login' | 'cadastro'>('login');
+  
+  // NOVO: Estado para saber qual card ele clicou
+  const [papelCadastro, setPapelCadastro] = useState<'PACIENTE' | 'CUIDADOR'>('PACIENTE');
 
   function aoAutenticar(usuarioLogado: UsuarioLogado, token: string) {
     localStorage.setItem('lembremed_usuario', JSON.stringify(usuarioLogado));
@@ -32,9 +35,19 @@ function App() {
 
   if (!usuario) {
     return tela === 'login' ? (
-      <Login aoLogar={aoAutenticar} aoIrParaCadastro={() => setTela('cadastro')} />
+      <Login 
+        aoLogar={aoAutenticar} 
+        aoIrParaCadastro={(papelClicado) => {
+          setPapelCadastro(papelClicado); // Salva qual card foi clicado
+          setTela('cadastro'); // Muda para a tela de cadastro
+        }} 
+      />
     ) : (
-      <Cadastro aoCadastrar={aoAutenticar} aoVoltarParaLogin={() => setTela('login')} />
+      <Cadastro 
+        papelInicial={papelCadastro} // Passa a informação para o formulário de cadastro
+        aoCadastrar={aoAutenticar} 
+        aoVoltarParaLogin={() => setTela('login')} 
+      />
     );
   }
 
