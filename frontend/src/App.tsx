@@ -57,11 +57,10 @@ function App() {
       <nav style={{ display: 'flex', gap: 12, padding: 16, alignItems: 'center' }}>
         <span>Olá, {usuario.nome}</span>
         <button type="button" onClick={sair}>Sair</button>
+        <BotaoSOS />
       </nav>
 
       {usuario.papel === 'CUIDADOR' ? <Dashboard /> : <MeusRemedios />}
-
-      <BotaoSOS />
     </div>
   );
 }

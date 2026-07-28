@@ -110,18 +110,20 @@ export function BotaoSOS() {
     }
 
     return (
-        <div className="botao-sos-wrapper">
+        <>
             {mensagem && (
-                <div className="botao-sos-mensagem" role="alert">
-                    {mensagem}
-                    <button
-                        type="button"
-                        className="botao-sos-mensagem-fechar"
-                        onClick={() => setMensagem(null)}
-                        aria-label="Fechar mensagem"
-                    >
-                        ×
-                    </button>
+                <div className="botao-sos-mensagem-wrapper">
+                    <div className="botao-sos-mensagem" role="alert">
+                        {mensagem}
+                        <button
+                            type="button"
+                            className="botao-sos-mensagem-fechar"
+                            onClick={() => setMensagem(null)}
+                            aria-label="Fechar mensagem"
+                        >
+                            ×
+                        </button>
+                    </div>
                 </div>
             )}
 
@@ -135,13 +137,16 @@ export function BotaoSOS() {
                 onClick={handleClick}
                 disabled={obtendoLocalizacao || enviandoAlerta}
                 aria-label="Acionar SOS"
+                title="Acionar SOS"
             >
-                {obtendoLocalizacao
-                    ? 'Localizando...'
-                    : enviandoAlerta
-                        ? 'Enviando...'
-                        : 'SOS'}
+                {obtendoLocalizacao || enviandoAlerta ? (
+                    <span className="botao-sos-spinner" aria-hidden="true" />
+                ) : (
+                    <span className="botao-sos-icone" aria-hidden="true">
+                        !
+                    </span>
+                )}
             </button>
-        </div>
+        </>
     );
 }
