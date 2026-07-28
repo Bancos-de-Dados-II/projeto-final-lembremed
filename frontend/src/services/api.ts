@@ -4,6 +4,18 @@ import type { Medicamento, RegistroDose } from '../types/registroDose';
 // URL base da API do backend LembreMed (configurada em .env como VITE_API_URL)
 const API_URL = import.meta.env.VITE_API_URL as string;
 
+export interface UsuarioLogado {
+  id: string;
+  nome: string;
+  email: string;
+  papel: 'PACIENTE' | 'CUIDADOR' | 'MEDICO' | 'ADMIN';
+}
+
+interface RespostaLogin {
+  token: string;
+  usuario: UsuarioLogado;
+}
+
 // Todas as rotas de Ponto_Saude_Mapa exigem token JWT (verifyToken no backend).
 // Enquanto a tela de login do time não estiver pronta, o token pode ser colado
 // manualmente no localStorage do navegador (chave "lembremed_token"), copiando
@@ -11,6 +23,50 @@ const API_URL = import.meta.env.VITE_API_URL as string;
 function obterHeadersAutenticacao(): HeadersInit {
   const token = localStorage.getItem('lembremed_token');
   return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+export async function login(email: string, senha: string): Promise<RespostaLogin> {
+  const resposta = await fetch(`${API_URL}/usuarios/login`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email, senha }),
+  });
+
+  const dados = await resposta.json();
+
+  if (!resposta.ok) {
+    throw new Error(dados.erro ?? 'Não foi possível fazer login.');
+  }
+
+  return dados as RespostaLogin;
+}
+
+export interface CadastroDTO {
+  nome: string;
+  email: string;
+  senha: string;
+  papel: 'PACIENTE' | 'CUIDADOR';
+}
+
+export async function cadastrar(dados: CadastroDTO): Promise<UsuarioLogado> {
+  const resposta = await fetch(`${API_URL}/usuarios`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(dados),
+  });
+
+  const corpo = await resposta.json();
+
+  if (!resposta.ok) {
+    const mensagem = corpo.erros_de_validacao
+      ? corpo.erros_de_validacao.map((e: { message: string }) => e.message).join(', ')
+      : corpo.erro ?? 'Não foi possível cadastrar.';
+    throw new Error(mensagem);
+  }
+
+  return corpo.usuario as UsuarioLogado;
 }
 
 export async function buscarPontosSaudeMapa(): Promise<PontoSaudeMapa[]> {
