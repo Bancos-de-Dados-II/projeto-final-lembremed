@@ -1,9 +1,16 @@
 import { useEffect, useState } from 'react';
 import { MedicamentoCard } from './MedicamentoCard';
 import { MapaFarmacias } from './MapaFarmacias';
+import { BotaoSOS } from './BotaoSOS';
 import { buscarRegistrosDoDia, confirmarDose } from '../services/api';
 import type { RegistroDose } from '../types/registroDose';
+import type { UsuarioLogado } from '../services/api';
 import './MeusRemedios.css';
+
+interface MeusRemediosProps {
+  usuario: UsuarioLogado;
+  aoSair: () => void;
+}
 
 // Enquanto a tela de login do time não estiver pronta, o pacienteId pode ser
 // colado manualmente no localStorage do navegador (chave "lembremed_paciente_id"),
@@ -25,7 +32,7 @@ function formatarDataPorExtenso(data: Date): string {
   }).format(data);
 }
 
-export function MeusRemedios() {
+export function MeusRemedios({ usuario, aoSair }: MeusRemediosProps) {
   const [registros, setRegistros] = useState<RegistroDose[]>([]);
   const [carregandoId, setCarregandoId] = useState<string | null>(null);
   const [carregandoLista, setCarregandoLista] = useState(true);
@@ -80,6 +87,19 @@ export function MeusRemedios() {
           </p>
         </div>
 
+        <div className="meus-remedios__acoes">
+          <span className="meus-remedios__saudacao">Olá, {usuario.nome}</span>
+
+          <button
+            type="button"
+            className="meus-remedios__botao-sair"
+            onClick={aoSair}
+          >
+            Sair
+          </button>
+
+          <BotaoSOS />
+        </div>
       </header>
 
       {erro && (
