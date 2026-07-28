@@ -1,10 +1,23 @@
+import { useState } from 'react';
 import { MeusRemedios } from './components/MeusRemedios';
+import { Dashboard } from './components/Dashboard';
 import './App.css';
 
 function App() {
+  const [tela, setTela] = useState<'paciente' | 'dashboard'>('paciente');
+
   return (
     <div className="app-shell">
-      <MeusRemedios />
+      <nav style={{ display: 'flex', gap: 12, padding: 16 }}>
+        <button type="button" onClick={() => setTela('paciente')}>
+          Meus Remédios
+        </button>
+        <button type="button" onClick={() => setTela('dashboard')}>
+          Dashboard
+        </button>
+      </nav>
+
+      {tela === 'paciente' ? <MeusRemedios /> : <Dashboard />}
     </div>
   );
 }
