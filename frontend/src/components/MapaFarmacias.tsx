@@ -14,9 +14,6 @@ import { buscarPontosSaudeMapa } from '../services/api';
 import type { PontoSaudeMapa } from '../types/pontoSaudeMapa';
 import './MapaFarmacias.css';
 
-// Correção necessária: o bundler (Vite) não resolve os ícones padrão do
-// Leaflet automaticamente, então os caminhos são reatribuídos manualmente.
-// (problema conhecido do Leaflet com bundlers modernos, não é bug do projeto)
 delete (L.Icon.Default.prototype as unknown as { _getIconUrl?: unknown })
   ._getIconUrl;
 L.Icon.Default.mergeOptions({
