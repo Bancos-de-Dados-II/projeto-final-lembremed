@@ -1,36 +1,97 @@
 import { Request, Response } from 'express';
-import { z } from 'zod';
-import { criarVinculoSchema } from '../schemas/vinculoSchema';
-import { VinculoService } from '../services/VinculoService';
+import { PrismaClient } from '@prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
+
+const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
+const prisma = new PrismaClient({ adapter });
 
 export class VinculoController {
-  static async criar(req: Request, res: Response): Promise<void> {
+  
+  static async criar(req: Request, res: Response) {
     try {
-      // 1. Passa o body da requisição pela validação rigorosa do Zod
-      const dadosValidados = criarVinculoSchema.parse(req.body);
+      // 🚀 AQUI ESTÁ A CORREÇÃO: Buscando de req.usuario.id
+      const cuidadorId = (req as any).usuario?.id; 
+      
+      if (!cuidadorId) {
+        return res.status(401).json({ erro: "ID do cuidador não encontrado no token. Verifique o middleware!" });
+      }
 
-      // 2. Envia os dados limpos e validados para o Service fazer o trabalho pesado
-      const vinculo = await VinculoService.criarVinculo(dadosValidados);
+      const { emailPaciente } = req.body;
 
-      // 3. Devolve a resposta de sucesso com status 201 (Created)
-      res.status(201).json({
-        mensagem: 'Vínculo criado com sucesso!',
-        vinculo
+      if (!emailPaciente) {
+        return res.status(400).json({ erro: "O e-mail do paciente é obrigatório." });
+      }
+
+      const paciente = await prisma.usuario.findUnique({
+        where: { email: emailPaciente }
       });
 
+      if (!paciente || paciente.papel !== 'PACIENTE') {
+        return res.status(404).json({ erro: "Paciente não encontrado." });
+      }
+
+      const novoVinculo = await prisma.vinculo_Cuidado.create({
+        data: {
+          status: 'ACEITO', 
+          nivel_acesso: 'TOTAL',
+          cuidador: {
+            connect: { id: cuidadorId }
+          },
+          paciente: {
+            connect: { id: paciente.id }
+          }
+        }
+      });
+
+      return res.status(201).json({
+        mensagem: "Paciente vinculado com sucesso!",
+        vinculo: novoVinculo
+      });
+
+    } catch (error: any) {
+      console.error("ERRO AO CRIAR VÍNCULO:", error);
+
+      if (error.code === 'P2002') {
+        return res.status(400).json({ erro: "Este paciente já está vinculado a você." });
+      }
+      return res.status(500).json({ erro: "Erro interno no servidor." });
+    }
+  }
+
+  static async listarPacientes(req: Request, res: Response) {
+    try {
+      // 🚀 AQUI TAMBÉM: Buscando de req.usuario.id para a listagem funcionar amanhã
+      const cuidadorId = (req as any).usuario?.id;
+
+      const vinculos = await prisma.vinculo_Cuidado.findMany({
+        where: { cuidadorId: cuidadorId },
+        include: {
+          paciente: {
+            select: {
+              id: true,
+              nome: true,
+              email: true,
+              telefone: true,
+              _count: {
+                select: { medicamentos: true }
+              }
+            }
+          }
+        }
+      });
+
+      const pacientes = vinculos.map((v: any) => ({
+        id: v.paciente.id,
+        nome: v.paciente.nome,
+        email: v.paciente.email,
+        telefone: v.paciente.telefone,
+        quantidadeMedicamentos: v.paciente._count.medicamentos
+      }));
+
+      return res.json(pacientes);
+
     } catch (error) {
-      // Tratamento de erros: Se for erro do Zod (ex: não é um UUID válido)
-      if (error instanceof z.ZodError) {
-        res.status(400).json({ erros_de_validacao: error.issues });
-        return;
-      }
-      // Tratamento de erros: Se for erro do nosso Service (ex: Paciente não existe)
-      if (error instanceof Error) {
-        res.status(404).json({ erro: error.message });
-        return;
-      }
-      // Qualquer outro erro inesperado do servidor
-      res.status(500).json({ erro: 'Erro interno ao criar vínculo.' });
+      return res.status(500).json({ erro: "Erro ao buscar pacientes vinculados." });
     }
   }
 }

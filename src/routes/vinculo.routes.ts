@@ -4,7 +4,10 @@ import { verifyToken } from '../middlewares/verifyToken';
 
 const vinculoRoutes = Router();
 
-// Rota PROTEGIDA: Só quem tem o Token (fez login) pode criar o vínculo
+// Rota POST: O Cuidador usa para adicionar o paciente pelo e-mail
 vinculoRoutes.post('/', verifyToken, VinculoController.criar);
+
+// Rota GET: O Cuidador usa para carregar a tela com os cartões
+vinculoRoutes.get('/meus-pacientes', verifyToken, VinculoController.listarPacientes);
 
 export { vinculoRoutes };

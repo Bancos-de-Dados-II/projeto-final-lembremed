@@ -100,9 +100,6 @@ export function MapaFarmacias() {
         >
 
           {pontos.map((ponto) => {
-
-            const [longitude, latitude] = ponto.localizacao.coordinates;
-
             const ativo = selecionado?._id === ponto._id;
             
             return (
@@ -152,7 +149,7 @@ export function MapaFarmacias() {
               ]
               : CENTRO_INICIAL
           }
-          zoom={16}
+          zoom={ZOOM_INICIAL}
           className="mapa-leaflet"
         >
 
