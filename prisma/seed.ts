@@ -2,9 +2,6 @@ import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import bcrypt from 'bcrypt';
 
-// Mesmo padrão de adapter já usado em UsuarioService, VinculoService etc.
-// Se o resto do time usa DATABASE_URL em vez de DIRECT_URL nesses arquivos,
-// troca a env var aqui pra manter consistência.
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
 const SALT_ROUNDS = 10;
@@ -16,7 +13,8 @@ async function hash(senha: string): Promise<string> {
 async function main() {
   console.log('Iniciando seed do LembreMed...');
 
-  // Limpa dados existentes. Vínculo primeiro (depende de Usuario via FK).
+  // Ordem respeita as FKs: Medicamento depende de Usuario
+  await prisma.medicamento.deleteMany();
   await prisma.vinculo_Cuidado.deleteMany();
   await prisma.usuario.deleteMany();
 
@@ -67,7 +65,6 @@ async function main() {
       email: 'maria.souza@lembremed.com',
       senha: await hash('Idoso@123'),
       papel: 'PACIENTE',
-      // Cajazeiras-PB, usado pelo botão SOS / mapa de farmácias
       latitude_atual: -6.8895,
       longitude_atual: -38.5586,
     },
@@ -85,8 +82,6 @@ async function main() {
   });
 
   // ===== VÍNCULOS DE CUIDADO (NxN) =====
-  // idoso1 tem 2 cuidadores, cuidador1 cuida de 2 idosos -> NxN de verdade.
-  // status "ACEITO" simula um vínculo já confirmado (não "PENDENTE", o default).
   await prisma.vinculo_Cuidado.createMany({
     data: [
       { pacienteId: idoso1.id, cuidadorId: cuidador1.id, status: 'ACEITO' },
@@ -95,9 +90,60 @@ async function main() {
     ],
   });
 
+  // ===== MEDICAMENTOS =====
+  // Maria (idoso1): 3 medicamentos diários em horários distintos
+  await prisma.medicamento.createMany({
+    data: [
+      {
+        pacienteId: idoso1.id,
+        nome: 'Losartana Potássica 50mg',
+        dosagem: '1 comprimido',
+        horario: '07:00',
+        frequencia: 'DIARIA',
+      },
+      {
+        pacienteId: idoso1.id,
+        nome: 'Metformina 500mg',
+        dosagem: '1 comprimido',
+        horario: '12:00',
+        frequencia: 'DIARIA',
+      },
+      {
+        pacienteId: idoso1.id,
+        nome: 'Sinvastatina 20mg',
+        dosagem: '1 comprimido',
+        horario: '21:00',
+        frequencia: 'DIARIA',
+      },
+    ],
+  });
+
+  // José (idoso2): 1 diário + 1 semanal (exercita o campo dias_semana)
+  await prisma.medicamento.createMany({
+    data: [
+      {
+        pacienteId: idoso2.id,
+        nome: 'Atenolol 25mg',
+        dosagem: '1 comprimido',
+        horario: '08:00',
+        frequencia: 'DIARIA',
+      },
+      {
+        pacienteId: idoso2.id,
+        nome: 'Alendronato de Sódio 70mg',
+        dosagem: '1 comprimido em jejum',
+        horario: '07:00',
+        frequencia: 'SEMANAL',
+        dias_semana: 'SEGUNDA',
+      },
+    ],
+  });
+
   console.log('Seed concluído:');
   console.log('  2 médicos, 2 cuidadores, 2 idosos criados');
   console.log('  3 vínculos de cuidado (NxN) criados');
+  console.log('  5 medicamentos criados (3 para Maria, 2 para José)');
+  console.log('    -> inclui 1 medicamento SEMANAL com dias_semana preenchido');
 }
 
 main()
