@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { criarAlertaEmergencia } from '../services/api';
+import { obterEnderecoPorCoordenadas } from '../services/geocodificacao';
+import { ModalEmergencia } from './ModalEmergencia';
 import './BotaoSOS.css';
 
 // Chave já estabelecida pelo restante do time (tela do paciente) para
@@ -12,6 +14,9 @@ export function BotaoSOS() {
     const [mensagem, setMensagem] = useState<string | null>(null);
     const [obtendoLocalizacao, setObtendoLocalizacao] = useState(false);
     const [enviandoAlerta, setEnviandoAlerta] = useState(false);
+    const [modalAberto, setModalAberto] = useState(false);
+    const [endereco, setEndereco] = useState<string | null>(null);
+    const [carregandoEndereco, setCarregandoEndereco] = useState(false);
 
     // Checagem defensiva: lê o localStorage uma única vez, ao montar.
     //
@@ -50,18 +55,20 @@ export function BotaoSOS() {
 
         try {
             await criarAlertaEmergencia(pacienteId, latitude, longitude);
-            setMensagem('Alerta enviado com sucesso.');
 
-            // Some sozinha depois de ~4s — mas só se ainda for essa mesma
-            // mensagem de sucesso (evita apagar por engano uma mensagem mais
-            // nova, caso o usuário já tenha clicado de novo nesse meio-tempo).
-            setTimeout(() => {
-                setMensagem((mensagemAtual) =>
-                    mensagemAtual === 'Alerta enviado com sucesso.'
-                        ? null
-                        : mensagemAtual
-                );
-            }, 4000);
+            // Sucesso vira modal (protótipo), não mais a mensagem simples —
+            // essa continua existindo, mas só para os casos de erro abaixo.
+            setModalAberto(true);
+            setEndereco(null);
+            setCarregandoEndereco(true);
+
+            // Falha na geocodificação não deve derrubar o modal: o alerta já
+            // foi salvo com sucesso nesse ponto, então só cai no fallback de
+            // texto ("Endereço não disponível") dentro do próprio modal.
+            obterEnderecoPorCoordenadas(latitude, longitude)
+                .then((enderecoObtido) => setEndereco(enderecoObtido))
+                .catch(() => setEndereco(null))
+                .finally(() => setCarregandoEndereco(false));
         } catch (erro) {
             setMensagem(
                 erro instanceof Error
@@ -125,6 +132,14 @@ export function BotaoSOS() {
                         </button>
                     </div>
                 </div>
+            )}
+
+            {modalAberto && (
+                <ModalEmergencia
+                    endereco={endereco}
+                    carregandoEndereco={carregandoEndereco}
+                    aoFechar={() => setModalAberto(false)}
+                />
             )}
 
             <button

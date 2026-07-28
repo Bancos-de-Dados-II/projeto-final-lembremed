@@ -1,0 +1,105 @@
+.modal-emergencia-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+
+.modal-emergencia-card {
+  width: 100%;
+  max-width: 360px;
+  margin: 16px;
+  background-color: #ffffff;
+  border-radius: 20px;
+  padding: 32px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  font-family: system-ui, sans-serif;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+}
+
+.modal-emergencia-icone {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background-color: #fdecea;
+  color: #d32f2f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  font-weight: 800;
+  margin-bottom: 16px;
+}
+
+.modal-emergencia-titulo {
+  margin: 0 0 8px;
+  font-size: 1.3rem;
+  color: #1f2d27;
+}
+
+.modal-emergencia-subtitulo {
+  margin: 0 0 20px;
+  font-size: 0.9rem;
+  color: #5b6b63;
+  line-height: 1.4;
+}
+
+.modal-emergencia-endereco-box {
+  width: 100%;
+  background-color: #f4f6f5;
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+}
+
+.modal-emergencia-endereco-label {
+  display: block;
+  font-size: 0.75rem;
+  color: #8a948e;
+  margin-bottom: 4px;
+}
+
+.modal-emergencia-endereco-valor {
+  font-size: 0.9rem;
+  color: #1f2d27;
+}
+
+.modal-emergencia-botao {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  margin-bottom: 12px;
+  text-decoration: none;
+  display: block;
+  box-sizing: border-box;
+}
+
+.modal-emergencia-botao--samu {
+  background-color: #d32f2f;
+  color: #ffffff;
+  text-align: center;
+}
+
+.modal-emergencia-botao--contato {
+  background-color: #5b4fe0;
+  color: #ffffff;
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.modal-emergencia-botao--cancelar {
+  background-color: #ffffff;
+  color: #5b6b63;
+  border: 1px solid #ddd;
+  margin-bottom: 0;
+}
