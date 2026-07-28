@@ -3,6 +3,7 @@ import { Login } from './components/Login';
 import { Cadastro } from './components/Cadastro';
 import { MeusRemedios } from './components/MeusRemedios';
 import { Dashboard } from './components/Dashboard';
+import { BotaoSOS } from './components/BotaoSOS';
 import type { UsuarioLogado } from './services/api';
 import './App.css';
 
@@ -14,7 +15,7 @@ function recuperarUsuarioSalvo(): UsuarioLogado | null {
 function App() {
   const [usuario, setUsuario] = useState<UsuarioLogado | null>(recuperarUsuarioSalvo());
   const [tela, setTela] = useState<'login' | 'cadastro'>('login');
-  
+
   // NOVO: Estado para saber qual card ele clicou
   const [papelCadastro, setPapelCadastro] = useState<'PACIENTE' | 'CUIDADOR'>('PACIENTE');
 
@@ -35,18 +36,18 @@ function App() {
 
   if (!usuario) {
     return tela === 'login' ? (
-      <Login 
-        aoLogar={aoAutenticar} 
+      <Login
+        aoLogar={aoAutenticar}
         aoIrParaCadastro={(papelClicado) => {
           setPapelCadastro(papelClicado); // Salva qual card foi clicado
           setTela('cadastro'); // Muda para a tela de cadastro
-        }} 
+        }}
       />
     ) : (
-      <Cadastro 
+      <Cadastro
         papelInicial={papelCadastro} // Passa a informação para o formulário de cadastro
-        aoCadastrar={aoAutenticar} 
-        aoVoltarParaLogin={() => setTela('login')} 
+        aoCadastrar={aoAutenticar}
+        aoVoltarParaLogin={() => setTela('login')}
       />
     );
   }
@@ -59,6 +60,8 @@ function App() {
       </nav>
 
       {usuario.papel === 'CUIDADOR' ? <Dashboard /> : <MeusRemedios />}
+
+      <BotaoSOS />
     </div>
   );
 }

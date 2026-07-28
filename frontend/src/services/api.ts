@@ -16,10 +16,7 @@ interface RespostaLogin {
   usuario: UsuarioLogado;
 }
 
-// Todas as rotas de Ponto_Saude_Mapa exigem token JWT (verifyToken no backend).
-// Enquanto a tela de login do time não estiver pronta, o token pode ser colado
-// manualmente no localStorage do navegador (chave "lembremed_token"), copiando
-// o token retornado pelo POST /usuarios/login no Insomnia.
+// Todas as rotas protegidas exigem token JWT (verifyToken no backend).
 function obterHeadersAutenticacao(): HeadersInit {
   const token = localStorage.getItem('lembremed_token');
   return token ? { Authorization: `Bearer ${token}` } : {};
@@ -145,4 +142,31 @@ export async function buscarMedicamentosPorPaciente(
   }
 
   return resposta.json();
+}
+
+// Aciona o Botão SOS: registra um novo Alerta_Emergencia no backend.
+// Retorna apenas void — o BotaoSOS só precisa saber se deu certo ou não,
+// não usa nenhum dado do alerta criado.
+export async function criarAlertaEmergencia(
+  pacienteId: string,
+  latitude: number,
+  longitude: number
+): Promise<void> {
+  const resposta = await fetch(`${API_URL}/alertas-emergencia`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...obterHeadersAutenticacao(),
+    },
+    body: JSON.stringify({ pacienteId, latitude, longitude }),
+  });
+
+  if (!resposta.ok) {
+    const corpoErro = await resposta.json().catch(() => null);
+    throw new Error(
+      corpoErro?.erro ?? 'Não foi possível enviar o alerta de emergência.'
+    );
+  }
+
+  await resposta.json().catch(() => null);
 }
