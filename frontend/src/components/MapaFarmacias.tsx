@@ -4,6 +4,7 @@ import {
   TileLayer,
   Marker,
   Popup,
+  Polyline,
   useMap,
 } from 'react-leaflet';
 import L from 'leaflet';
@@ -29,6 +30,16 @@ const CENTRO_INICIAL: [number, number] = [-6.8906, -38.5615];
 // Raio usado para filtrar a lista lateral — o mapa continua mostrando
 // todos os pontos, só a lista é filtrada por proximidade
 const RAIO_LISTA_KM = 15;
+
+// API pública do OSRM (Open Source Routing Machine) — rota de carro,
+// sem necessidade de chave de API. Uso livre para testes/projetos acadêmicos.
+const OSRM_URL = 'https://router.project-osrm.org/route/v1/driving';
+
+interface Rota {
+  coordenadas: [number, number][]; // [latitude, longitude] para o Polyline
+  distanciaKm: number;
+  duracaoMin: number;
+}
 
 function CentralizarMapa({
   latitude,
@@ -84,6 +95,42 @@ function obterMensagemErroGeolocalizacao(codigo: number): string {
   }
 }
 
+// Busca a rota de carro entre dois pontos usando a API do OSRM.
+// OSRM espera coordenadas como longitude,latitude (padrão GeoJSON).
+async function buscarRota(
+  origemLat: number,
+  origemLon: number,
+  destinoLat: number,
+  destinoLon: number
+): Promise<Rota> {
+  const url = `${OSRM_URL}/${origemLon},${origemLat};${destinoLon},${destinoLat}?overview=full&geometries=geojson`;
+
+  const resposta = await fetch(url);
+
+  if (!resposta.ok) {
+    throw new Error('Não foi possível calcular a rota.');
+  }
+
+  const dados = await resposta.json();
+
+  if (!dados.routes || dados.routes.length === 0) {
+    throw new Error('Nenhuma rota encontrada.');
+  }
+
+  const rota = dados.routes[0];
+
+  // GeoJSON vem como [longitude, latitude] — o Leaflet espera [latitude, longitude]
+  const coordenadas: [number, number][] = rota.geometry.coordinates.map(
+    ([lon, lat]: [number, number]) => [lat, lon]
+  );
+
+  return {
+    coordenadas,
+    distanciaKm: rota.distance / 1000,
+    duracaoMin: rota.duration / 60,
+  };
+}
+
 export function MapaFarmacias() {
   const [pontos, setPontos] = useState<PontoSaudeMapa[]>([]);
   const [carregando, setCarregando] = useState(true);
@@ -97,6 +144,10 @@ export function MapaFarmacias() {
   } | null>(null);
   
   const [mensagemLocalizacao, setMensagemLocalizacao] = useState<string | null>(null);
+
+  const [rota, setRota] = useState<Rota | null>(null);
+  const [carregandoRota, setCarregandoRota] = useState(false);
+  const [erroRota, setErroRota] = useState<string | null>(null);
 
   useEffect(() => {
     buscarPontosSaudeMapa()
@@ -138,6 +189,32 @@ export function MapaFarmacias() {
       }
     );
   }, []);
+
+  // Sempre que o ponto selecionado muda, busca a rota de carro até ele —
+  // só é possível se já tivermos a localização do usuário
+  useEffect(() => {
+    if (!selecionado || !localizacaoUsuario) {
+      setRota(null);
+      return;
+    }
+
+    const [longitudeDestino, latitudeDestino] =
+      selecionado.localizacao.coordinates;
+
+    setCarregandoRota(true);
+    setErroRota(null);
+    setRota(null);
+
+    buscarRota(
+      localizacaoUsuario.latitude,
+      localizacaoUsuario.longitude,
+      latitudeDestino,
+      longitudeDestino
+    )
+      .then(setRota)
+      .catch((erroCapturado: Error) => setErroRota(erroCapturado.message))
+      .finally(() => setCarregandoRota(false));
+  }, [selecionado, localizacaoUsuario]);
 
   // Lista filtrada por proximidade — usada só no painel lateral.
   // Sem localização do usuário, cai de volta para a lista completa.
@@ -224,6 +301,26 @@ export function MapaFarmacias() {
                 >
                   {ponto.endereco}
                 </div>
+
+                {ativo && (
+                  <div
+                    style={{
+                      marginTop: 8,
+                      fontSize: 13,
+                      fontWeight: 600,
+                      color: '#5b4fe0',
+                    }}
+                  >
+                    {carregandoRota && 'Calculando rota…'}
+                    {erroRota && !carregandoRota && 'Rota indisponível'}
+                    {rota && !carregandoRota && (
+                      <>
+                        🚗 {rota.distanciaKm.toFixed(1)} km ·{' '}
+                        {Math.round(rota.duracaoMin)} min
+                      </>
+                    )}
+                  </div>
+                )}
               </div>
             );
           })}
@@ -271,6 +368,14 @@ export function MapaFarmacias() {
               </Marker>
             );
           })}
+
+          {/* Traçado da rota até a farmácia selecionada */}
+          {rota && (
+            <Polyline
+              positions={rota.coordenadas}
+              pathOptions={{ color: '#5b4fe0', weight: 5, opacity: 0.8 }}
+            />
+          )}
         </MapContainer>
       </div>
     </div>
