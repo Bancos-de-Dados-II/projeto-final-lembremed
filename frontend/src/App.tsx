@@ -3,7 +3,6 @@ import { Login } from './components/Login';
 import { Cadastro } from './components/Cadastro';
 import { MeusRemedios } from './components/MeusRemedios';
 import { Dashboard } from './components/Dashboard';
-import { BotaoSOS } from './components/BotaoSOS';
 import type { UsuarioLogado } from './services/api';
 import './App.css';
 
@@ -54,13 +53,11 @@ function App() {
 
   return (
     <div className="app-shell">
-      <nav style={{ display: 'flex', gap: 12, padding: 16, alignItems: 'center' }}>
-        <span>Olá, {usuario.nome}</span>
-        <button type="button" onClick={sair}>Sair</button>
-        <BotaoSOS />
-      </nav>
-
-      {usuario.papel === 'CUIDADOR' ? <Dashboard /> : <MeusRemedios />}
+      {usuario.papel === 'CUIDADOR' ? (
+        <Dashboard />
+      ) : (
+        <MeusRemedios usuario={usuario} aoSair={sair} />
+      )}
     </div>
   );
 }

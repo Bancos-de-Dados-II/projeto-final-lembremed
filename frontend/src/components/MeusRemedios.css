@@ -27,6 +27,40 @@
   text-transform: capitalize;
 }
 
+.meus-remedios__acoes {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  flex-shrink: 0;
+}
+
+.meus-remedios__saudacao {
+  font-size: 0.95rem;
+  color: #6b628a;
+  white-space: nowrap;
+}
+
+.meus-remedios__botao-sair {
+  padding: 0.5rem 1.1rem;
+  border: 1px solid #d8d3ea;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #241d3d;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.meus-remedios__botao-sair:hover {
+  background: #f0eef8;
+}
+
+.meus-remedios__botao-sair:focus-visible {
+  outline: 3px solid #241d3d;
+  outline-offset: 2px;
+}
+
 .meus-remedios__botao-emergencia {
   flex-shrink: 0;
   width: 56px;
