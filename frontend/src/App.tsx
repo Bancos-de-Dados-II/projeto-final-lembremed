@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { MeusRemedios } from './components/MeusRemedios';
 import { Dashboard } from './components/Dashboard';
+import { BotaoSOS } from './components/BotaoSOS';
 import './App.css';
 
 function App() {
@@ -18,6 +19,8 @@ function App() {
       </nav>
 
       {tela === 'paciente' ? <MeusRemedios /> : <Dashboard />}
+
+      <BotaoSOS />
     </div>
   );
 }
