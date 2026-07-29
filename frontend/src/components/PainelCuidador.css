@@ -102,3 +102,61 @@
   font-weight: 600;
   cursor: pointer;
 }
+
+.painel-cuidador__form-adicionar {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 32px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.painel-cuidador__form-label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #241d3d;
+}
+
+.painel-cuidador__form-linha {
+  display: flex;
+  gap: 12px;
+}
+
+.painel-cuidador__form-input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 0.95rem;
+}
+
+.painel-cuidador__form-input:focus {
+  outline: none;
+  border-color: #7c3aed;
+}
+
+.painel-cuidador__form-botao {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  background: #7c3aed;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.painel-cuidador__form-botao:hover {
+  background: #6d28d9;
+}
+
+.painel-cuidador__form-botao:disabled {
+  background: #c4b5fd;
+  cursor: not-allowed;
+}
+
+.painel-cuidador__mensagem--sucesso {
+  color: #0f9d58;
+  margin-top: 10px;
+}
