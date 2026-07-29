@@ -1,0 +1,90 @@
+/* Ícone circular compacto, do mesmo porte dos outros ícones do header
+   (ex: botão de logout ao lado). Vive dentro do fluxo normal da nav,
+   não é mais posicionado livremente. */
+.botao-sos {
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    border: none;
+    background-color: #d32f2f;
+    color: #ffffff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(211, 47, 47, 0.4);
+    font-family: system-ui, sans-serif;
+}
+
+.botao-sos:hover {
+    background-color: #b71c1c;
+}
+
+.botao-sos:active {
+    transform: scale(0.96);
+}
+
+.botao-sos--carregando {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.botao-sos-icone {
+    font-weight: 800;
+    font-size: 1.1rem;
+    line-height: 1;
+}
+
+/* Spinner simples exibido nos estados "Localizando..."/"Enviando...",
+   sem texto, já que o botão não tem mais espaço para se esticar dentro
+   do header. */
+.botao-sos-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    border-top-color: #ffffff;
+    border-radius: 50%;
+    animation: botao-sos-girar 0.7s linear infinite;
+}
+
+@keyframes botao-sos-girar {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* A mensagem de sucesso/erro não vive mais grudada ao botão (que agora
+   está dentro do fluxo do header) — fica fixa no topo direito da tela,
+   abaixo do header, sem interferir no conteúdo da página. */
+.botao-sos-mensagem-wrapper {
+    position: fixed;
+    top: 76px;
+    right: 24px;
+    z-index: 9999;
+}
+
+.botao-sos-mensagem {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    max-width: 280px;
+    background-color: #fdecea;
+    color: #b3261e;
+    border: 1px solid #f5c6c3;
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 0.85rem;
+    font-family: system-ui, sans-serif;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.botao-sos-mensagem-fechar {
+    background: none;
+    border: none;
+    color: #b3261e;
+    font-size: 1.1rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+}
