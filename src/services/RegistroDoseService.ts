@@ -81,6 +81,7 @@ export class RegistroDoseService {
         status: "TOMADO",
         horario_confirmado: new Date(),
       },
+      include: { medicamento: true },
     });
   }
 
