@@ -223,6 +223,23 @@ export interface NovoMedicamentoDTO {
   foto?: File | null;
 }
 
+export async function desvincularPaciente(pacienteId: string): Promise<void> {
+  const token = localStorage.getItem('lembremed_token');
+
+  const resposta = await fetch(`${API_URL}/vinculos/${pacienteId}`, {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const dados = await resposta.json();
+
+  if (!resposta.ok) {
+    throw new Error(dados.erro || 'Erro ao remover paciente.');
+  }
+}
+
 // Usa FormData (não JSON) porque a rota aceita upload de foto (multipart/form-data)
 export async function criarMedicamento(dados: NovoMedicamentoDTO): Promise<Medicamento> {
   const formData = new FormData();

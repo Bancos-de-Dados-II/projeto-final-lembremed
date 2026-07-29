@@ -94,4 +94,47 @@ export class VinculoController {
       return res.status(500).json({ erro: "Erro ao buscar pacientes vinculados." });
     }
   }
+
+  static async desvincular(req: Request, res: Response) {
+  try {
+    const cuidadorId = (req as any).usuario?.id;
+    const pacienteId = req.params.pacienteId as string;
+
+    if (!cuidadorId) {
+      return res.status(401).json({
+        erro: "Usuário não autenticado."
+      });
+    }
+
+    const vinculo = await prisma.vinculo_Cuidado.findFirst({
+      where: {
+        cuidadorId,
+        pacienteId
+      }
+    });
+
+    if (!vinculo) {
+      return res.status(404).json({
+        erro: "Vínculo não encontrado."
+      });
+    }
+
+    await prisma.vinculo_Cuidado.delete({
+      where: {
+        id: vinculo.id
+      }
+    });
+
+    return res.status(200).json({
+      mensagem: "Paciente removido com sucesso."
+    });
+
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).json({
+      erro: "Erro ao remover paciente."
+    });
+  }
+}
 }

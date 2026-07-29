@@ -1,5 +1,9 @@
 import { useEffect, useState } from 'react';
-import { buscarMeusPacientes, vincularPaciente } from '../services/api';
+import {
+  buscarMeusPacientes,
+  vincularPaciente,
+  desvincularPaciente
+} from '../services/api';
 import type { PacienteVinculado } from '../services/api';
 import { DetalhePaciente } from './DetalhePaciente';
 import './PainelCuidador.css';
@@ -59,6 +63,22 @@ export function PainelCuidador({ aoSair }: PainelCuidadorProps) {
     }
   }
 
+  async function removerPaciente(id: string) {
+    const confirmar = window.confirm(
+      'Deseja remover este paciente da sua lista?'
+    );
+
+    if (!confirmar) return;
+
+    try {
+      await desvincularPaciente(id);
+
+      await carregarPacientes();
+    } catch (erroCapturado) {
+      alert((erroCapturado as Error).message);
+    }
+  }
+
   // Enquanto um paciente estiver selecionado, mostra a tela de detalhe dele
   if (pacienteSelecionadoId) {
     const pacienteSelecionado = pacientes.find((p) => p.id === pacienteSelecionadoId);
@@ -89,6 +109,7 @@ export function PainelCuidador({ aoSair }: PainelCuidadorProps) {
         <label htmlFor="email-paciente" className="painel-cuidador__form-label">
           Adicionar paciente pelo e-mail
         </label>
+
         <div className="painel-cuidador__form-linha">
           <input
             id="email-paciente"
@@ -99,6 +120,7 @@ export function PainelCuidador({ aoSair }: PainelCuidadorProps) {
             disabled={enviandoVinculo}
             className="painel-cuidador__form-input"
           />
+
           <button
             type="submit"
             disabled={enviandoVinculo}
@@ -107,13 +129,15 @@ export function PainelCuidador({ aoSair }: PainelCuidadorProps) {
             {enviandoVinculo ? 'Adicionando...' : 'Adicionar Paciente'}
           </button>
         </div>
+
         {erroVinculo && (
-          <p className="painel-cuidador__mensagem painel-cuidador__mensagem--erro" role="alert">
+          <p className="painel-cuidador__mensagem painel-cuidador__mensagem--erro">
             {erroVinculo}
           </p>
         )}
+
         {sucessoVinculo && (
-          <p className="painel-cuidador__mensagem painel-cuidador__mensagem--sucesso" role="status">
+          <p className="painel-cuidador__mensagem painel-cuidador__mensagem--sucesso">
             {sucessoVinculo}
           </p>
         )}
@@ -139,15 +163,31 @@ export function PainelCuidador({ aoSair }: PainelCuidadorProps) {
         {pacientes.map((paciente) => (
           <article key={paciente.id} className="cartao-paciente">
             <div className="cartao-paciente__topo">
-              <h3 className="cartao-paciente__nome">{paciente.nome}</h3>
-              <button
-                type="button"
-                className="cartao-paciente__seta"
-                onClick={() => setPacienteSelecionadoId(paciente.id)}
-                aria-label={`Ver detalhes de ${paciente.nome}`}
-              >
-                →
-              </button>
+              <h3 className="cartao-paciente__nome">
+                {paciente.nome}
+              </h3>
+
+              <div className="cartao-paciente__acoes">
+
+                <button
+                  type="button"
+                  className="cartao-paciente__remover"
+                  title="Remover paciente"
+                  onClick={() => removerPaciente(paciente.id)}
+                >
+                  🗑️
+                </button>
+
+                <button
+                  type="button"
+                  className="cartao-paciente__seta"
+                  onClick={() => setPacienteSelecionadoId(paciente.id)}
+                  aria-label={`Ver detalhes de ${paciente.nome}`}
+                >
+                  →
+                </button>
+
+              </div>
             </div>
             <p className="cartao-paciente__linha">📞 {paciente.telefone ?? 'Não informado'}</p>
             <p className="cartao-paciente__linha">✉️ {paciente.email}</p>
