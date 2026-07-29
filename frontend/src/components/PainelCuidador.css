@@ -1,7 +1,8 @@
 .painel-cuidador {
-  max-width: 1000px;
+  max-width: 1280px;
+  width: 100%;
   margin: 0 auto;
-  padding: 32px 24px;
+  padding: 32px;
 }
 
 .painel-cuidador__cabecalho {
@@ -46,15 +47,16 @@
 
 .painel-cuidador__grade {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: 24px;
+  align-items: start;
 }
 
 .cartao-paciente {
   background: #fff;
-  border-radius: 12px;
+  border-radius: 16px;
   padding: 20px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  width: 100%;
 }
 
 .cartao-paciente__topo {
