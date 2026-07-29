@@ -10,4 +10,5 @@ vinculoRoutes.post('/', verifyToken, VinculoController.criar);
 // Rota GET: O Cuidador usa para carregar a tela com os cartões
 vinculoRoutes.get('/meus-pacientes', verifyToken, VinculoController.listarPacientes);
 
+vinculoRoutes.delete('/:pacienteId', verifyToken, VinculoController.desvincular);
 export { vinculoRoutes };
