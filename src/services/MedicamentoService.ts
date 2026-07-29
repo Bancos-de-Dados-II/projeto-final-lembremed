@@ -55,8 +55,15 @@ export class MedicamentoService {
 
   // Remove um medicamento
   static async deletar(id: string) {
+    // Verifica se o medicamento existe primeiro
     await this.buscarPorId(id);
 
+    // 🚀 CORREÇÃO: Limpa todos os registros de doses desse medicamento ANTES
+    await prisma.registro_Dose.deleteMany({
+      where: { medicamentoId: id },
+    });
+
+    // Agora sim, deleta o medicamento com o caminho livre!
     return prisma.medicamento.delete({ where: { id } });
   }
 }
