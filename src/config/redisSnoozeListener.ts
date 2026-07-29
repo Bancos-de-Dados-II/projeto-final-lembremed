@@ -10,7 +10,6 @@ const prisma = new PrismaClient({ adapter });
 const PREFIXO_CHAVE_SNOOZE = "snooze:";
 
 // Liga a notificação de expiração de chaves no Redis (evento "Ex" = expired).
-// Sem isso, o canal de expiração não dispara nenhum evento.
 async function ativarNotificacoesDeExpiracao() {
   await redisClient.sendCommand([
     "CONFIG",
@@ -20,12 +19,10 @@ async function ativarNotificacoesDeExpiracao() {
   ]);
 }
 
-// Fica "escutando" toda vez que uma chave expira no Redis (banco 0, o padrão).
+// Fica "escutando" toda vez que uma chave expira no Redis
 export async function iniciarListenerDeSnooze() {
   await ativarNotificacoesDeExpiracao();
 
-  // Pub/Sub no Redis exige uma conexão dedicada, separada da usada
-  // para comandos normais — por isso duplicamos o client existente.
   const subscriber = redisClient.duplicate();
   await subscriber.connect();
 
@@ -54,12 +51,12 @@ async function marcarComoAtrasadoSeAindaPendente(registroId: string) {
 }
 
 // Calcula quantos segundos faltam até o "limite de atraso"
-// (horário previsto do medicamento + 30 minutos).
 export function calcularSegundosAteAtraso(data: Date, horario: string): number {
   const [horas, minutos] = horario.split(":").map(Number);
 
   const horarioPrevisto = new Date(data);
-  horarioPrevisto.setHours(horas, minutos, 0, 0);
+  
+  horarioPrevisto.setUTCHours(horas + 3, minutos, 0, 0);
 
   const limiteDeAtraso = new Date(horarioPrevisto.getTime() + 30 * 60 * 1000);
 
@@ -75,8 +72,6 @@ export async function agendarSnoozeDoRegistro(
   const segundos = calcularSegundosAteAtraso(data, horario);
 
   if (segundos <= 0) {
-    // O horário limite já passou (ex: gerado depois das 8:30 pra uma dose das 8h) —
-    // marca direto, sem precisar esperar o Redis.
     await marcarComoAtrasadoSeAindaPendente(registroId);
     return;
   }
@@ -86,7 +81,7 @@ export async function agendarSnoozeDoRegistro(
   });
 }
 
-// Cancela o snooze quando o idoso confirma a dose antes do prazo.
+// Cancela o snooze quando o paciente confirma a dose.
 export async function cancelarSnoozeDoRegistro(registroId: string) {
   await redisClient.del(`${PREFIXO_CHAVE_SNOOZE}${registroId}`);
 }
