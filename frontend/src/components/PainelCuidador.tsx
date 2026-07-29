@@ -1,5 +1,9 @@
 import { useEffect, useState } from 'react';
-import { buscarMeusPacientes, vincularPaciente } from '../services/api';
+import {
+  buscarMeusPacientes,
+  vincularPaciente,
+  desvincularPaciente
+} from '../services/api';
 import type { PacienteVinculado } from '../services/api';
 import { DetalhePaciente } from './DetalhePaciente';
 import './PainelCuidador.css';
@@ -56,6 +60,22 @@ export function PainelCuidador({ aoSair }: PainelCuidadorProps) {
       setErroVinculo((erroCapturado as Error).message);
     } finally {
       setEnviandoVinculo(false);
+    }
+  }
+
+  async function removerPaciente(id: string) {
+    const confirmar = window.confirm(
+      'Deseja remover este paciente da sua lista?'
+    );
+
+    if (!confirmar) return;
+
+    try {
+      await desvincularPaciente(id);
+
+      await carregarPacientes();
+    } catch (erroCapturado) {
+      alert((erroCapturado as Error).message);
     }
   }
 
@@ -153,7 +173,7 @@ export function PainelCuidador({ aoSair }: PainelCuidadorProps) {
                   type="button"
                   className="cartao-paciente__remover"
                   title="Remover paciente"
-                // onClick={() => removerPaciente(paciente.id)}
+                  onClick={() => removerPaciente(paciente.id)}
                 >
                   🗑️
                 </button>
