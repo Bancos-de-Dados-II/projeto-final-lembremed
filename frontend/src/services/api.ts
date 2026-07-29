@@ -224,19 +224,16 @@ export interface NovoMedicamentoDTO {
 }
 
 export async function desvincularPaciente(pacienteId: string): Promise<void> {
-  const token = localStorage.getItem('lembremed_token');
-
   const resposta = await fetch(`${API_URL}/vinculos/${pacienteId}`, {
     method: 'DELETE',
     headers: {
-      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+      ...obterHeadersAutenticacao(), 
     },
   });
 
-  const dados = await resposta.json();
-
   if (!resposta.ok) {
-    throw new Error(dados.erro || 'Erro ao remover paciente.');
+    throw new Error('Erro ao remover paciente.');
   }
 }
 
