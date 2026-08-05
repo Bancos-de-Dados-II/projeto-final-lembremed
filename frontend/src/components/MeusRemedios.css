@@ -41,23 +41,31 @@
 }
 
 .meus-remedios__botao-sair {
-  padding: 0.5rem 1.1rem;
-  border: 1px solid #d8d3ea;
-  border-radius: 8px;
-  background: #ffffff;
-  color: #241d3d;
-  font-size: 0.9rem;
-  font-weight: 600;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: none;
+  background: #f2eefc;
+  color: #7c3aed;
+  font-size: 1.3rem;
   cursor: pointer;
-  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background-color 0.2s ease, transform 0.1s ease;
 }
 
 .meus-remedios__botao-sair:hover {
-  background: #f0eef8;
+  background: #e8ddff;
+}
+
+.meus-remedios__botao-sair:active {
+  transform: scale(0.96);
 }
 
 .meus-remedios__botao-sair:focus-visible {
-  outline: 3px solid #241d3d;
+  outline: 3px solid #7c3aed;
   outline-offset: 2px;
 }
 
