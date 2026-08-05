@@ -97,8 +97,10 @@ export function MeusRemedios({ usuario, aoSair }: MeusRemediosProps) {
             type="button"
             className="meus-remedios__botao-sair"
             onClick={aoSair}
+            title="Sair"
+            aria-label="Sair"
           >
-            Sair
+            ↪
           </button>
 
           <BotaoSOS />
