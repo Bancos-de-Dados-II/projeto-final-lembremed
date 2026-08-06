@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { MedicamentoCard } from './MedicamentoCard';
 import { MapaFarmacias } from './MapaFarmacias';
 import { BotaoSOS } from './BotaoSOS';
+import { AlarmeModal } from '../components/AlarmeModal';
 import { buscarRegistrosDoDia, confirmarDose } from '../services/api';
 import { useAlarmeDose } from '../hooks/useAlarmeDose';
 import type { RegistroDose } from '../types/registroDose';
@@ -13,9 +14,6 @@ interface MeusRemediosProps {
   aoSair: () => void;
 }
 
-// Enquanto a tela de login do time não estiver pronta, o pacienteId pode ser
-// colado manualmente no localStorage do navegador (chave "lembremed_paciente_id"),
-// copiando o "id" retornado pelo POST /usuarios cadastrado como PACIENTE.
 function obterPacienteId(): string | null {
   return localStorage.getItem('lembremed_paciente_id');
 }
@@ -41,11 +39,15 @@ export function MeusRemedios({ usuario, aoSair }: MeusRemediosProps) {
   const [carregandoId, setCarregandoId] = useState<string | null>(null);
   const [carregandoLista, setCarregandoLista] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
+  const [registroAlerta, setRegistroAlerta] = useState<RegistroDose | null>(null);
 
   const pacienteId = obterPacienteId();
 
-  // Hook do alarme sonoro monitorando os registros da tela
-  const { pararAlarme } = useAlarmeDose(registros);
+  const handleDispararAlarme = useCallback((registro: RegistroDose) => {
+    setRegistroAlerta(registro);
+  }, []);
+
+  const { pararAlarme } = useAlarmeDose(registros, handleDispararAlarme);
 
   useEffect(() => {
     if (!pacienteId) {
@@ -71,8 +73,8 @@ export function MeusRemedios({ usuario, aoSair }: MeusRemediosProps) {
     try {
       const registroAtualizado = await confirmarDose(registroId);
 
-      // Interrompe o alarme sonoro se ele estiver tocando
       pararAlarme();
+      setRegistroAlerta(null);
 
       setRegistros((atual) =>
         atual.map((registro) =>
@@ -86,12 +88,16 @@ export function MeusRemedios({ usuario, aoSair }: MeusRemediosProps) {
     }
   }
 
+  function handleFecharAlarme() {
+    pararAlarme();
+    setRegistroAlerta(null);
+  }
+
   return (
     <main className="meus-remedios">
       <header className="meus-remedios__cabecalho">
         <div>
           <h1 className="meus-remedios__titulo">Meus Remédios</h1>
-
           <p className="meus-remedios__data">
             {formatarDataPorExtenso(new Date())}
           </p>
@@ -99,7 +105,6 @@ export function MeusRemedios({ usuario, aoSair }: MeusRemediosProps) {
 
         <div className="meus-remedios__acoes">
           <span className="meus-remedios__saudacao">Olá, {usuario.nome}</span>
-
           <button
             type="button"
             className="meus-remedios__botao-sair"
@@ -109,7 +114,6 @@ export function MeusRemedios({ usuario, aoSair }: MeusRemediosProps) {
           >
             ↪
           </button>
-
           <BotaoSOS />
         </div>
       </header>
@@ -147,11 +151,17 @@ export function MeusRemedios({ usuario, aoSair }: MeusRemediosProps) {
         <h2 className="meus-remedios__subtitulo">
           📍 Farmácias Próximas
         </h2>
-
         <div className="meus-remedios__mapa">
           <MapaFarmacias />
         </div>
       </section>
+
+      {/* Modal renderizado diretamente no document.body via Portal */}
+      <AlarmeModal
+        registro={registroAlerta}
+        onConfirmar={handleConfirmar}
+        onFechar={handleFecharAlarme}
+      />
     </main>
   );
 }
