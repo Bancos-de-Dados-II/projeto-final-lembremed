@@ -6,6 +6,7 @@ import {
 } from '../services/api';
 import type { PacienteVinculado } from '../services/api';
 import { DetalhePaciente } from './DetalhePaciente';
+import { useDosesAtrasadas } from '../hooks/useDosesAtrasadas';
 import './PainelCuidador.css';
 
 interface PainelCuidadorProps {
@@ -22,6 +23,9 @@ export function PainelCuidador({ aoSair }: PainelCuidadorProps) {
   const [enviandoVinculo, setEnviandoVinculo] = useState(false);
   const [erroVinculo, setErroVinculo] = useState<string | null>(null);
   const [sucessoVinculo, setSucessoVinculo] = useState<string | null>(null);
+
+  // Hook responsável por monitorar as doses atrasadas de todos os pacientes em background
+  const { dosesAtrasadas } = useDosesAtrasadas(pacientes);
 
   async function carregarPacientes() {
     try {
@@ -72,7 +76,6 @@ export function PainelCuidador({ aoSair }: PainelCuidadorProps) {
 
     try {
       await desvincularPaciente(id);
-
       await carregarPacientes();
     } catch (erroCapturado) {
       alert((erroCapturado as Error).message);
@@ -104,6 +107,37 @@ export function PainelCuidador({ aoSair }: PainelCuidadorProps) {
           ↪
         </button>
       </header>
+
+      {/* Banner de alerta visual para doses atrasadas */}
+      {dosesAtrasadas.length > 0 && (
+        <section
+          className="painel-cuidador__mensagem painel-cuidador__mensagem--erro"
+          style={{
+            marginBottom: '20px',
+            padding: '16px',
+            borderRadius: '12px',
+            borderLeft: '6px solid #dc2626',
+            backgroundColor: '#fef2f2',
+            color: '#991b1b',
+            textAlign: 'left'
+          }}
+          aria-live="polite"
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+            <span style={{ fontSize: '20px' }}>⚠️</span>
+            <strong style={{ fontSize: '16px' }}>
+              {dosesAtrasadas.length} {dosesAtrasadas.length === 1 ? 'dose atrasada requer atenção' : 'doses atrasadas requerem atenção'}!
+            </strong>
+          </div>
+          <ul style={{ margin: 0, paddingLeft: '24px', fontSize: '14px' }}>
+            {dosesAtrasadas.map((item) => (
+              <li key={item.registroId} style={{ marginTop: '4px' }}>
+                <strong>{item.pacienteNome}</strong>: {item.medicamentoNome} às {item.horario}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       <form onSubmit={handleAdicionarPaciente} className="painel-cuidador__form-adicionar">
         <label htmlFor="email-paciente" className="painel-cuidador__form-label">
@@ -168,7 +202,6 @@ export function PainelCuidador({ aoSair }: PainelCuidadorProps) {
               </h3>
 
               <div className="cartao-paciente__acoes">
-
                 <button
                   type="button"
                   className="cartao-paciente__remover"
@@ -186,7 +219,6 @@ export function PainelCuidador({ aoSair }: PainelCuidadorProps) {
                 >
                   →
                 </button>
-
               </div>
             </div>
             <p className="cartao-paciente__linha">📞 {paciente.telefone ?? 'Não informado'}</p>
