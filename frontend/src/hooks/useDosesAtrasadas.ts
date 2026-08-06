@@ -19,7 +19,6 @@ export function useDosesAtrasadas(pacientes: PacienteVinculado[], intervaloMs: n
     const [dosesAtrasadas, setDosesAtrasadas] = useState<DoseAtrasadaInfo[]>([]);
     const notificadosRef = useRef<Set<string>>(new Set());
 
-    // Solicita permissão para notificações do navegador ao carregar
     useEffect(() => {
         if ('Notification' in window && Notification.permission === 'default') {
             Notification.requestPermission();
@@ -33,8 +32,6 @@ export function useDosesAtrasadas(pacientes: PacienteVinculado[], intervaloMs: n
         }
 
         const hoje = formatarDataParaApi(new Date());
-        const agora = new Date();
-        const horaAtualMinutos = agora.getHours() * 60 + agora.getMinutes();
 
         try {
             const resultadosPorPaciente = await Promise.all(
@@ -42,29 +39,24 @@ export function useDosesAtrasadas(pacientes: PacienteVinculado[], intervaloMs: n
                     try {
                         const registros = await buscarRegistrosDoDia(paciente.id, hoje);
 
-                        console.log(`🔍 [Diagnóstico] Registros recebidos de ${paciente.nome}:`, registros);
-
-                        // Considera atrasado se o status da API for ATRASADO
-                        // OU se ainda estiver PENDENTE mas o horário do remédio já tiver passado no relógio
-                        const atrasados = registros.filter((r) => {
-                            if (r.status === 'ATRASADO') return true;
-
-                            if (r.status === 'PENDENTE' && r.medicamento?.horario) {
-                                const [h, m] = r.medicamento.horario.split(':').map(Number);
-                                const horaRemedioMinutos = h * 60 + m;
-                                // Se a hora do remédio já passou há mais de 1 minuto
-                                return horaAtualMinutos > horaRemedioMinutos;
-                            }
-
-                            return false;
-                        });
+                        // BUGFIX: antes também considerava "atrasado" qualquer
+                        // dose PENDENTE com horário já passado há 1 minuto —
+                        // duplicava a regra de negócio do backend com um valor
+                        // diferente dos 30 minutos definidos no
+                        // redisSnoozeListener.ts. Agora confia inteiramente no
+                        // status ATRASADO que já vem pronto da API (aplicado
+                        // pelo Redis no horário certo), evitando que a tela do
+                        // cuidador e o backend fiquem dessincronizados se o
+                        // valor de tolerância mudar no futuro.
+                        const atrasados = registros.filter(
+                            (r) => r.status === 'ATRASADO'
+                        );
 
                         return atrasados.map((r) => ({
                             registroId: r.id,
                             pacienteNome: paciente.nome,
                             medicamentoNome: r.medicamento.nome,
                             horario: r.medicamento.horario,
-                            status: r.status
                         }));
                     } catch (err) {
                         console.error(`Erro ao buscar doses do paciente ${paciente.nome}:`, err);
@@ -74,11 +66,9 @@ export function useDosesAtrasadas(pacientes: PacienteVinculado[], intervaloMs: n
             );
 
             const todasAtrasadas = resultadosPorPaciente.flat();
-            console.log('🚨 [Diagnóstico] Total de doses atrasadas agrupadas:', todasAtrasadas);
 
-            // Dispara as notificações nativas
             todasAtrasadas.forEach((item) => {
-                const chaveNotificacao = `${item.registroId}`;
+                const chaveNotificacao = item.registroId;
                 if (!notificadosRef.current.has(chaveNotificacao)) {
                     notificadosRef.current.add(chaveNotificacao);
 
