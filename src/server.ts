@@ -2,6 +2,7 @@ import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import path from 'path';
 import 'dotenv/config';
+import { swaggerSpec, swaggerUi } from './config/swagger';
 import { usuarioRoutes } from './routes/usuario.routes';
 import { vinculoRoutes } from './routes/vinculo.routes';
 import registroDoseRoutes from "./routes/registroDose.routes";
@@ -17,6 +18,7 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // --- CONECTANDO AOS BANCOS NÃO-RELACIONAIS ---
 conectarMongoDB();
