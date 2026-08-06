@@ -39,15 +39,39 @@ export function MeusRemedios({ usuario, aoSair }: MeusRemediosProps) {
   const [carregandoId, setCarregandoId] = useState<string | null>(null);
   const [carregandoLista, setCarregandoLista] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
-  const [registroAlerta, setRegistroAlerta] = useState<RegistroDose | null>(null);
+
+  // BUGFIX (fila de alarmes): antes era um único `RegistroDose | null` —
+  // se dois medicamentos tivessem o mesmo horário, o segundo alarme
+  // sobrescrevia o modal do primeiro sem o paciente conseguir confirmá-lo
+  // por ali. Agora é uma fila: o modal mostra sempre o primeiro item,
+  // e ao confirmar/fechar, o próximo da fila aparece automaticamente.
+  const [filaAlarmes, setFilaAlarmes] = useState<RegistroDose[]>([]);
 
   const pacienteId = obterPacienteId();
 
   const handleDispararAlarme = useCallback((registro: RegistroDose) => {
-    setRegistroAlerta(registro);
+    setFilaAlarmes((atual) => {
+      if (atual.some((r) => r.id === registro.id)) return atual;
+      return [...atual, registro];
+    });
   }, []);
 
   const { pararAlarme } = useAlarmeDose(registros, handleDispararAlarme);
+
+  const registroAlerta = filaAlarmes[0] ?? null;
+
+  function removerDaFilaDeAlarmes(registroId: string) {
+    setFilaAlarmes((atual) => {
+      const restante = atual.filter((r) => r.id !== registroId);
+      // Só desliga o som quando não sobra mais nenhum alarme pendente
+      // na fila — se ainda houver outro, o som continua, e o próximo
+      // modal aparece automaticamente (registroAlerta = filaAlarmes[0]).
+      if (restante.length === 0) {
+        pararAlarme();
+      }
+      return restante;
+    });
+  }
 
   useEffect(() => {
     if (!pacienteId) {
@@ -72,9 +96,7 @@ export function MeusRemedios({ usuario, aoSair }: MeusRemediosProps) {
 
     try {
       const registroAtualizado = await confirmarDose(registroId);
-
-      pararAlarme();
-      setRegistroAlerta(null);
+      removerDaFilaDeAlarmes(registroId);
 
       setRegistros((atual) =>
         atual.map((registro) =>
@@ -89,8 +111,9 @@ export function MeusRemedios({ usuario, aoSair }: MeusRemediosProps) {
   }
 
   function handleFecharAlarme() {
-    pararAlarme();
-    setRegistroAlerta(null);
+    if (registroAlerta) {
+      removerDaFilaDeAlarmes(registroAlerta.id);
+    }
   }
 
   return (
@@ -156,7 +179,9 @@ export function MeusRemedios({ usuario, aoSair }: MeusRemediosProps) {
         </div>
       </section>
 
-      {/* Modal renderizado diretamente no document.body via Portal */}
+      {/* Modal renderizado diretamente no document.body via Portal.
+          Sempre mostra o primeiro item da fila — ao confirmar/fechar,
+          o próximo (se houver) aparece automaticamente. */}
       <AlarmeModal
         registro={registroAlerta}
         onConfirmar={handleConfirmar}
