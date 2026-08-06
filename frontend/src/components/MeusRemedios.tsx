@@ -3,6 +3,7 @@ import { MedicamentoCard } from './MedicamentoCard';
 import { MapaFarmacias } from './MapaFarmacias';
 import { BotaoSOS } from './BotaoSOS';
 import { buscarRegistrosDoDia, confirmarDose } from '../services/api';
+import { useAlarmeDose } from '../hooks/useAlarmeDose';
 import type { RegistroDose } from '../types/registroDose';
 import type { UsuarioLogado } from '../services/api';
 import './MeusRemedios.css';
@@ -43,6 +44,9 @@ export function MeusRemedios({ usuario, aoSair }: MeusRemediosProps) {
 
   const pacienteId = obterPacienteId();
 
+  // Hook do alarme sonoro monitorando os registros da tela
+  const { pararAlarme } = useAlarmeDose(registros);
+
   useEffect(() => {
     if (!pacienteId) {
       setErro(
@@ -66,6 +70,9 @@ export function MeusRemedios({ usuario, aoSair }: MeusRemediosProps) {
 
     try {
       const registroAtualizado = await confirmarDose(registroId);
+
+      // Interrompe o alarme sonoro se ele estiver tocando
+      pararAlarme();
 
       setRegistros((atual) =>
         atual.map((registro) =>
